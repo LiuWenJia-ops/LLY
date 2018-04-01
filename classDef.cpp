@@ -27,7 +27,7 @@ public:
 	~linehead();
 
 private:
-	string * firstBlock;//Ö¸ÏòµÚÒ»¸öblock
+	string * firstBlock;//æŒ‡å‘ç¬¬ä¸€ä¸ªblock
 	linehead * next;
 
 };
@@ -49,9 +49,9 @@ public:
 	~temText();
 
 private:
-	int counter;//¶Î¼ÆÊı
-	linehead * head;//ĞĞÍ·Á´±íÍ·
-	bool changeMode;//»»ĞĞÄ£Ê½
+	int counter;//æ®µè®¡æ•°
+	linehead * head;//è¡Œå¤´é“¾è¡¨å¤´
+	bool changeMode;//æ¢è¡Œæ¨¡å¼
 
 };
 
