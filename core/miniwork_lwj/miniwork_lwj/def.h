@@ -37,7 +37,6 @@ private:
 
 block::block()
 {
-	ch = NULL;
 	head = NULL; tail = NULL;
 	textSize = 0;
 	next = NULL;
@@ -55,10 +54,9 @@ public:
 
 	block* newBlock();//仅申请new block 
 	bool deleteBlock(block* target);
-
+	friend class temText;
 private:
-	int
-		block * firstBlock;//指向第一个block
+	block * firstBlock;//指向第一个block
 	linehead * next;//下一个行头
 
 };
@@ -72,13 +70,13 @@ block* linehead::newBlock() {//在光标所指的block之后插入新的block
 	block* tem = new block;
 	return tem;
 }
-bool linehead::deleteBlock(block* target) {
+bool linehead::deleteBlock(block* target) {//仅仅删除block,没考虑前后交替的
 	if (!target)
 		return false;
 	delete target;
 	return true;
 }
-linehead::~linehead()//释放当前行后的blocks
+linehead::~linehead()//释放当前行后所有的block
 {
 	block* tem = this->firstBlock;
 	block* nextblk;
@@ -91,14 +89,14 @@ linehead::~linehead()//释放当前行后的blocks
 
 class temText//文字编辑内存
 {
-public:
-	temText();
-	~temText();
+	public:
+		temText();
+		~temText();
 
-private:
-	int parcounter;//段计数
-	linehead * head;//行头链表头结点
-	bool changeMode;//换行模式,true为非自动变化
+	private:
+		int parcounter;//段计数
+		linehead * head;//行头链表头结点
+		bool changeMode;//换行模式,true为非自动变化
 
 };
 
@@ -112,7 +110,7 @@ temText::temText()
 temText::~temText()
 {
 	linehead * tem = head->next;
-	line* nexthd;
+	linehead * nexthd;
 	while (!tem) {
 		nexthd = tem->next;
 		delete tem;

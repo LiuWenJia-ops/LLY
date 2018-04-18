@@ -21,9 +21,6 @@
   <ItemGroup>
     <ClInclude Include="def.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="function.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{EF16A222-5890-4BCB-ADCC-E0F9259B8847}</ProjectGuid>
