@@ -36,10 +36,11 @@ private:
 
 block::block()
 {
-	ch=NULL;
-	head=NULL;tail=NULL;
+	ch[0]='\0'; //ch={""};这个不行
+	head=0;
+	tail=0;
 	textSize=0;
-	next=NULL;
+	next=nullptr;
 }
 
 block::~block()
@@ -56,7 +57,7 @@ public:
 	bool deleteBlock(block* target);
 	
 private:
-	int 
+	int num;
 	block * firstBlock;//指向第一个block
 	linehead * next;//下一个行头
 	
@@ -64,8 +65,8 @@ private:
 
 linehead::linehead()
 {
-	this->firstBlock = NULL;
-	this->next = NULL;
+	this->firstBlock = nullptr;
+	this->next = nullptr;
 }
 block* linehead::newBlock(){//在光标所指的block之后插入新的block
 	block* tem=new block;
@@ -104,6 +105,6 @@ private:
 temText::temText()
 {
 	parcounter=0;
-	head = NULL;
+	head = nullptr;
 	changeMode=true;
 }
