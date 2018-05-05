@@ -1,43 +1,55 @@
 #include <cstdlib>
+#include <string>
 #define CTYPE char
 
 typedef class cursor//逻辑上的光标，不是实际的那个，用于在链表中定位
 {
 public:
-	cursor(linehead* lptr);
+	cursor();
 	~cursor();
+	void setFirstLine(linehead* lp){
+		this->firstLine=lp;
+	}
 	void axisToPtr(int row);//TODO:由行数修改指针
-	void insertChar(CTYPE c);//插入字符，TODO:增加行
-	void insertStr(CTYPE* str,CP* Ptrs);//TODO:插入字符串
-	void deleteChar(bool isback);//TODO:删除前后字符，删除行
-	CTYPE* copyStr(CP* sPtr,CP* ePtr)//new一段字符串数组返回 TODO:考虑清楚是用头指针还是尾指针
+	void insertStr(std::string str);//TODO:插入字符串,判断换行
+	// void deleteChar(bool isback);//TODO:删除前后字符，删除行
+	// CTYPE* copyStr(CP* sPtr,CP* ePtr);//new一段字符串数组返回 TODO:考虑清楚是用头指针还是尾指针
 private:
     linehead* firstLine;
     linehead* nowLine;
 	int row;//从1开始计算
 	int col;//从1开始计算，表示光标后字符的序号
 }cursor;
-cursor::cursor(linehead* lptr)
+cursor::cursor()
 {
-    firstLine=lptr;
     nowLine=firstLine;
     row=1;
     col=1;
 }
 typedef class linehead//行链表，双向链表
 {
-    friend class temText;
+    friend class cursor;
 public:
 	linehead();
 	~linehead();
-	linehead * getNext(void){ return this->next;}
-	void setNext(linehead* np){ this->next=np;}
-    linehead* getPre(void){return pre;};
-	void setPre(linehead* np){pre=np;};
-    int getSize(void){return strSize;}
+	linehead * getNext(void){ 
+		return this->next;
+	}
+	void setNext(linehead* np){ 
+		this->next=np;
+	}
+    linehead* getPre(void){
+		return pre;
+	}
+	void setPre(linehead* np){
+		pre=np;
+	}
+    int getSize(void){
+		return strSize;
+	}
 	void setSize(int n);//TODO:包括修改其他参数的内容
+	CTYPE *chs;
 private:
-    CYTPE *chs;
     int strSize;
 	linehead * next;//下一个行头
     linehead * pre;
@@ -77,9 +89,10 @@ private:
 
 temText::temText()
 {
-	parcounter=1;
+	linecounter=1;
 	firstLine = newLine();
-	cur=new cursor(firstLine);//TODO:待修改
+	cur=new cursor;
+	cur->setFirstLine(firstLine);
 	changeMode=true;
 }
 temText::~temText()
