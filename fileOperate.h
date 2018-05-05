@@ -3,9 +3,7 @@
 #include <QFileDialog>
 #include<iostream>
 
-
-bool vacantBody(){//清空body
-
+bool vacantBody(){//TODO:清空body
 }
 
 void newfile(const char* & addr){
