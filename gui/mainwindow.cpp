@@ -23,3 +23,8 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::on_textEdit_cursorPositionChanged()
+{
+    delete ui;
+}

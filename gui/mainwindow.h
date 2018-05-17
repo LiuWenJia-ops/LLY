@@ -21,6 +21,9 @@ public:
     bool saveFile(const QString &fileName); // 保存文件
 
 
+private slots:
+    void on_textEdit_cursorPositionChanged();
+
 private:
     Ui::MainWindow *ui;
     // 为真表示文件没有保存过，为假表示文件已经被保存过了
