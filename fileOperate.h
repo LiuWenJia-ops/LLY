@@ -1,38 +1,34 @@
 ﻿#include <iostream>
 #include <fstream>
-
 #include <string>
 using namespace std;
 
-
 #include "arrayline.h"
 #include <QFileDialog>
-bool vacantBody(temText & body){//TODO:清空body
 
-}
-
-void newfile(const char* & addr,temText & body){
+void newfile(const char* & addr,cursor & cur){
    if(addr[0]){
        // TODO:询问是否保存当前文件并新建,
         //若否，直接返回；
-        {
-        }
         //若是，保存文件
         {
-            savefile(addr,body);
+            savefile(addr,cur);
             addr[0]="\0";
         }
    }//清空body，还原cur位置
-    vacantBody(body);
-    body.cur=NULL;
+   cur.delFull();
 }
 
 bool openfile(const char* & addr,cursor & cur){//XXX:打开文件的操作:系统化文件夹窗口里选取
     //TODO:如果已经打开了一份文件还想打开第二份
     if(addr[0]){//已经打开过一份
-        //TODO:询问是否保存并重新打开,
-        // 若否，直接返回；若是，保存并清空body，还原cur位置；
-    }//否则直接打开
+       // TODO:询问是否保存当前文件并新建,
+        //若否，直接返回；
+        //若是，保存文件
+        {
+            savefile(addr,cur);
+        }
+    }//清空body，还原cur位置
     QString filename = QFileDialog::getOpenFileName(//得到文件路径
                         this,
                         "Open Document",
@@ -55,17 +51,18 @@ bool openfile(const char* & addr,cursor & cur){//XXX:打开文件的操作:系�
 //TODO: 退出之前询问是否保存
 bool savefile(const char* & addr,cursor & cur){
     if(!addr[0]){//TODO:新建的文件无原地址，应该有什么打开系统文件夹的操作
-
-    }else{//否则直接保存到ch
-        ofstream buf(addr);
-        //FIXME:偷懒,没有检查打开失败的情况 (●'◡'●)   
-        linehead * tem=cur.getFirstLine();
-        while(tem!=nullptr){
-            buf<<tem->chs<<std::endl;
-            tem=tem->getNext();
-        }
-		return true;
+        //TODO:输入保存路径
     }
+    ofstream buf(addr);
+    //FIXME:偷懒,没有检查打开失败的情况 (●'◡'●)   
+    linehead * tem=cur.getFirstLine();
+    while(tem!=nullptr){
+        buf<<tem->chs<<std::endl;
+        tem=tem->getNext();
+    }
+    addr[0]="\0";
+    return true;
+
 }
 
 
