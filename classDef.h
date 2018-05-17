@@ -1,124 +1,151 @@
+#include <cstdlib>
+#include <string>
+#define CTYPE char
 
-class cursor//逻辑上的光标，不是实际的那个，用于在链表中定位
+typedef class cursor//逻辑上的光标，不是实际的那个，用于在链表中定位
 {
 public:
 	cursor();
 	~cursor();
-	unsigned int getRow(void){return this->row;}
-	unsigned int getCol(void){return this->col;}
-	void setRow(unsigned n){this->row=n;}
-	void setCol(unsigned n){this->col=n;}
+	void setFirstLine(linehead* lp){
+		this->firstLine=lp;
+	}
+	void axisToPtr(int row);//TODO:由行数修改指针
+	void insertStr(std::string str);//TODO:插入字符串,判断换行
+	// void deleteChar(bool isback);//TODO:删除前后字符，删除行
+	// CTYPE* copyStr(CP* sPtr,CP* ePtr);//new一段字符串数组返回 TODO:考虑清楚是用头指针还是尾指针
 private:
-	char * ch;//指向字符,光标前的字
-	linehead * liH;//指向行头
-	block * bl;//指向块
-	//暂定,界面绘制参数
-	unsigned int row;//从1开始计算
-	unsigned int col;//从1开始计算 
-};
-
+    linehead* firstLine;
+    linehead* nowLine;
+	int row;//从1开始计算
+	int col;//从1开始计算，表示光标后字符的序号
+}cursor;
 cursor::cursor()
 {
-	row=1;
-	col=1;
+    nowLine=firstLine;
+    row=1;
+    col=1;
 }
-
-cursor::~cursor()
+typedef class linehead//行链表，双向链表
 {
-}
-class block//字符块
-{
-public:
-	block();
-	~block();
-	block* getNext(void){return next;}
-	block* setNext(block* np){next=np;}
-	int getSize(void){return textSize;}
-private:
-	char ch[101];//字符串,无效字符\0
-	int head, tail;//串头,串尾
-	int textSize;//串长
-	block * next;//下一block
-	friend class linehead;
-};
-
-block::block()
-{
-	ch[0]='\0'; //ch={""};这个不行
-	head=0;
-	tail=0;
-	textSize=0;
-	next=nullptr;
-}
-
-block::~block()
-{
-}
-
-class linehead//行头结点
-{
+    friend class cursor;
 public:
 	linehead();
 	~linehead();
-	block* newBlock();//仅申请new block 
-	bool deleteBlock(block* target);
-	linehead * getNext(void){ return this->next;}
-	void setNext(linehead* np){ this->next=np;}
-	bool charInsert(unsigned int col,char c);//根据光标插入字符，并修改光标
-	bool stringInsert();//TODO: 插入字符串，等待数据类型确定D
+	linehead * getNext(void){ 
+		return this->next;
+	}
+	void setNext(linehead* np){ 
+		this->next=np;
+	}
+    linehead* getPre(void){
+		return pre;
+	}
+	void setPre(linehead* np){
+		pre=np;
+	}
+    int getSize(void){
+		return strSize;
+	}
+	void setSize(int n);//TODO:包括修改其他参数的内容
+	CTYPE *chs;
 private:
-	int num;//TODO: 如果没有用就删掉
+    int strSize;
 	linehead * next;//下一个行头
-	block * firstBlock;//指向第一个block
-	
-};
-
+    linehead * pre;
+}linehead;
 linehead::linehead()
 {
-	this->firstBlock = nullptr;
 	this->next = nullptr;
-}
-block* linehead::newBlock(){//在光标所指的block之后插入新的block
-	block* tem=new block;
-	return tem;
-}
-bool linehead::deleteBlock(block* target){
-	if(!target)
-			return false;
-	delete target;
-	return true;
+    chs=(CTYPE*)malloc(sizeof(CTYPE)*101);
+    chs[0]='\0';
+    strSize=0;
 }
 linehead::~linehead()//释放当前行后的blocks
 {
-	block* tem=this->firstBlock;	
-	block* nextblk;
-	while(!tem){
-		nextblk=tem->next;
-		delete tem;
-		tem=nextblk;
-	}	
+    free(chs);
+}
+void linehead::setSize(int n)
+{
+    strSize=n;
+    this->chs[n]='\0';
 }
 
-class temText//文字编辑内存
+typedef class temText//文字编辑内存
 {
 public:
 	temText();
 	~temText();
-	linehead * curToRow(cursor cur);//根据光标返回行结点
-	bool charInsert(cursor &cur,char c);//根据光标插入字符，并修改光标
-	bool stringInsert();//TODO: 插入字符串，等待数据类型确定D
-	bool charDel(cursor &cur,bool isFoward);//删除字符，判断前后
+	cursor *cur;
+    linehead* newLine(void);//在最后加一行
+    linehead* insertLine(linehead* preLine,CTYPE* str,int n);//在指定行后插一行
+    bool deleteLine(linehead* target);//删除行
 private:
-	int parcounter;//段计数
-	linehead * head;//行头链表头结点,无内容
-	bool changeMode;//换行模式,true为非自动变化
+	int linecounter;//行计数
+	linehead * firstLine;//第一行
+	bool changeMode;//换行模式flag,true为非自动变化
 
-};
+}temText;
 
 temText::temText()
 {
-	parcounter=0;
-	head = new linehead;
-	head->setNext(new linehead);
+	linecounter=1;
+	firstLine = newLine();
+	cur=new cursor;
+	cur->setFirstLine(firstLine);
 	changeMode=true;
+}
+temText::~temText()
+{
+    linehead* tem=this->firstLine;	
+	linehead* nextLine;
+	while(!tem){
+		nextLine=tem->getNext();
+		delete tem;
+		tem=nextLine;
+	}	
+}
+linehead* temText::newLine(void)//TOTEST:
+{
+	linehead* tem=new linehead;
+	if(this->firstLine==nullptr){
+		this->firstLine=tem;
+		this->firstLine->setPre(this->firstLine);
+	}
+	else{//行链表的尾结点的next为空
+		linehead* lastLine=this->firstLine->getPre();
+		lastLine->setNext(tem);
+		tem->setPre(lastLine);
+		this->firstLine->setPre(tem);
+	}
+    this->linecounter++;
+	return tem;
+}
+linehead* temText::insertLine(linehead* preLine,CTYPE* str,int n)//TOTEST:
+{
+    linehead* tempB;
+    if(preLine->getNext()==nullptr)
+        tempB=this->newLine();
+    else{
+        tempB=new linehead;
+        tempB->setPre(preLine);
+        tempB->setNext(preLine->getNext());
+        tempB->getNext()->setPre(tempB);
+        preLine->setNext(tempB);
+    }
+    for(int i=0;i<n;i++)
+        tempB->chs[i]=str[i];
+    tempB->setSize(n);
+    return tempB;
+}
+bool temText::deleteLine(linehead* target)//TOTEST:
+{
+	if(target==nullptr)
+			return false;
+	//TODO:有空可以优化成一个临时变量
+    target->getPre()->setNext(target->getNext());
+    target->getNext()->setPre(target->getPre());
+	delete target;
+	this->linecounter--;
+	return true;
 }

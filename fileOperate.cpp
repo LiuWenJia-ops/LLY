@@ -1,8 +1,14 @@
 #include "classDef.h"
 #include "textcashe.h"
 #include <QFileDialog>
-#include<iostream>
 
+#include <fstream>
+#include <iostream>
+#include <string>
+using std::string;
+using std::ofstream;
+using std::ifstream;
+　　
 bool vacantBody(){//TODO:清空body
 }
 
@@ -12,7 +18,7 @@ void newfile(const char* & addr){
          // 若否，直接返回；若是，保存文件并清空body，还原cur位置
 }
 
-temText * openfile(const char* & addr,temText & body){//XXX:打开文件的操作只有系统化文件夹窗口里选取，不过应该够了U•ェ•*U
+void  openfile(const char* & addr,temText & body){//XXX:打开文件的操作只有系统化文件夹窗口里选取，不过应该够了U•ェ•*U
     //TODO:如果已经打开了一份文件还想打开第二份
     // if(addr){//已经打开过一份
     //     //TODO:询问是否保存并重新打开,
