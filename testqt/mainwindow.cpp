@@ -5,7 +5,6 @@
 #include "qfiledialog.h"
 #include "qdir.h"
 
-
 static char addr[1000];
 static myTextEdit superText;
 
