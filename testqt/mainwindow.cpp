@@ -1,15 +1,160 @@
-#include <QFileDialog>
-#include "mainwindow.h"
+#include "C:/Users/sophie1998/Documents/GitHub/LLY/testqt/mainwindow.h"
 #include "ui_mainwindow.h"
+//file operation
+#include "qstring.h"
+#include "qfiledialog.h"
+#include "qdir.h"
+
 
 static char addr[1000];
-static curSOR cur;
+static myTextEdit superText;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setWindowTitle("Miniword");
+
+       textEdit = new QTextEdit;
+       textEdit->installEventFilter(this);
+       //textEdit->viewPort()->installEventFilter(this);
+}
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    //+状态栏
+     if (obj == textEdit) {
+         if (tcursor.hasSelection())
+             int flag = 1;
+         else
+             int flag = 0;
+
+
+         if (event->type() == QEvent::KeyPress) {
+             tcursor = textEdit->textCursor();
+             //强制转换事件类型
+             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+
+             //键盘移动光标位置
+             if (keyEvent->key() == Qt::Key_Left){
+                 textEdit->moveCursor(QTextCursor::Left, QTextCursor::MoveAnchor);
+                 //int row = tcursor.position() - tcursor.block().position();
+                 int row = tcursor.columnNumber();
+                 int line = tcursor.blockNumber();
+                 //接口
+                 //setKeyAction(left,line,row);
+                 return true;
+             }
+             else if (keyEvent->key() == Qt::Key_Right){
+                 textEdit->moveCursor(QTextCursor::Right, QTextCursor::MoveAnchor);
+                 int row = tcursor.columnNumber();
+                 int line = tcursor.blockNumber();
+                 //接口
+                 //setKeyAction(right,line,row);
+                 return true;
+             }
+             else if (keyEvent->key() == Qt::Key_Up){
+                 textEdit->moveCursor(QTextCursor::Up, QTextCursor::MoveAnchor);
+                 int row = tcursor.columnNumber();
+                 int line = tcursor.blockNumber();
+                 //接口
+                 //setKeyAction(up,line,row);
+                 return true;
+             }
+             else if (keyEvent->key() == Qt::Key_Down){
+                 textEdit->moveCursor(QTextCursor::Down, QTextCursor::MoveAnchor);
+                 int row = tcursor.columnNumber();
+                 int line = tcursor.blockNumber();
+                 //接口
+                 //setKeyAction(down,line,row);
+                 return true;
+             }
+             else if (keyEvent->key() == Qt::Key_End){
+                 textEdit->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
+                 int row = tcursor.columnNumber();
+                 int line = tcursor.blockNumber();
+                 //接口
+                 //setKeyAction(end,line,row);
+                 return true;
+             }
+
+             else if (keyEvent->key() == Qt::Key_Backspace){
+                 if (flag == 1)//已做块选择
+                     tcursor.clearSelection();
+                 tcursor.deletePreviousChar();
+                 int row = tcursor.columnNumber();
+                 int line = tcursor.blockNumber();
+                 //if (!myTextEdit.atStart())
+                 //接口(区分段落？首尾？
+                 //setKeyAction(backspace,line,row);
+                 return true;
+             }
+             else if (keyEvent->key() == Qt::Key_Delete){
+                 if (flag == 1)
+                     tcursor.clearSelection();
+                 tcursor.deleteChar();//Q
+                 int row = tcursor.columnNumber();
+                 int line = tcursor.blockNumber();
+                 //if (!cursor.atStart())
+                 //接口(区分段落？首尾？
+                 //setKeyAction(delete,line,row);
+                 return true;
+             }
+             //快捷键
+             else if (event->modifiers() == Qt::ShiftModifier){
+                 //Q:能否能保持keep
+                 if (keyEvent->key() == Qt::Key_Left)
+                     textEdit->moveCursor(QTextCursor::Left, QTextCursor::KeepAnchor);
+                 if (keyEvent->key() == Qt::Key_Right)
+                     textEdit->moveCursor(QTextCursor::Right, QTextCursor::KeepAnchor);
+
+
+                 else
+                     QTextEdit::keyPressEvent(event);
+             }
+
+
+             else if (){//Q:输入字符
+
+
+
+             }
+             else{
+                 // pass the event on to the parent class
+                 return QMainWindow::eventFilter(obj, event);
+             }
+
+             return true;
+         }
+         else if (event->type() == QEvent::MouseButtonPress){
+              QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+
+             if (mouseEvent->button() == Qt::LeftButton){
+                 QTextEdit::mousePressEvent(mouseEvent);
+                 tcursor = textEdit->textCursor();
+                 int row = tcursor.columnNumber();
+                 int line = tcursor.blockNumber();
+                 //接口
+                 //setMouseAction(move,line,row);
+                 return true;
+             }
+         }
+         else if (event->type() == QEvent::MouseMove){
+             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+
+             if (){
+
+                 textEdit->moveCursor(QTextCursor::     , QTextCursor::KeepAnchor)
+             }
+         }
+         else {
+             return false;
+         }
+     }
+     else{
+         // pass the event on to the parent class
+         return QMainWindow::eventFilter(obj, event);
+     }
 }
 
 MainWindow::~MainWindow()
@@ -17,14 +162,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::openfile(char* addr,curSOR & cur){//XXX:打开文件的操作:系统化文件夹窗口里选取
+bool MainWindow::openfile(char* addr,myTextEdit & textBody){//XXX:打开文件的操作:系统化文件夹窗口里选取
 //    //TODO:如果已经打开了一份文件还想打开第二份
 //    if(addr[0]){//已经打开过一份
 //       // TODO:询问是否保存当前文件并新建,
 //        //若否，直接返回；
 //        //若是，保存文件
 //        {
-//            savefile(addr,cur);
+//            savefile(addr,textBody);
 //        }
 //    }//清空body，还原cur位置
     QString filename = QFileDialog::getOpenFileName(//得到文件路径
@@ -34,7 +179,7 @@ bool MainWindow::openfile(char* addr,curSOR & cur){//XXX:打开文件的操作:�
                         "Text files (*.txt )");//file filter,只能打开txt
 
     if (!filename.isNull()) { //用户选择了文件
-        QByteArray ba=filename.toLatin1();
+        QByteArray ba=filename.toUTF8();
         addr=ba.data();//add存储的是绝对地址 TOTEST:（函数内部的const是全局不变的吗？）
 
         std::ifstream buf(addr);
@@ -42,7 +187,9 @@ bool MainWindow::openfile(char* addr,curSOR & cur){//XXX:打开文件的操作:�
         std::string media;
         while (std::getline(buf,media)){
             media.append("\n");
-            cur.insertStr(media);//TODO:将string插入到linehead里
+            textBody.insertStr(media);//TODO:将string插入到linehead里
+            qsStr = QString(media.c_str());
+            ui->textEdit->append(qsStr);//显示到textedit
         }
         return true;
     } else // 用户取消选择
@@ -50,13 +197,13 @@ bool MainWindow::openfile(char* addr,curSOR & cur){//XXX:打开文件的操作:�
 }
 //TODO: 退出之前询问是否保存
 
-bool MainWindow::savefile(char*  addr,curSOR & cur){
+bool MainWindow::savefile(char*  addr,myTextEdit & textBody){
 //    if(!addr[0]){//TODO:新建的文件无原地址，应该有什么打开系统文件夹的操作
 //        //TODO:输入保存路径
 //    }
     std::ofstream buf(addr);
     //FIXME:偷懒,没有检查打开失败的情况 (●'◡'●)
-    lineheAD * tem=cur.getFirstLine();
+    lineheAD * tem=textBody.getFirstLine();
     while(tem!=nullptr){
        buf<<tem->chs<<std::endl;
         tem=tem->getNext();
@@ -65,33 +212,33 @@ bool MainWindow::savefile(char*  addr,curSOR & cur){
     return true;
 }
 
-bool MainWindow::newfile(char* addr,curSOR & cur){
+bool MainWindow::newfile(char* addr,myTextEdit & textBody){
 //   if(addr[0]){
 //       // TODO:询问是否保存当前文件并新建,
 //        //若否，直接返回；
 //        //若是，保存文件
 //        {
-//            savefile(addr,cur);
+//            savefile(addr,superText);
 //            addr[0]="\0";
 //        }
 //   }//清空body，还原cur位置
-   cur.delFULL();
+  textBody.delFULL();
 }
 void MainWindow::on_actionnew_triggered()
 {
-    newfile(addr,cur);
+    newfile(addr,superText);
 }
 
 void MainWindow::on_actionsave_triggered()
 {
-    savefile(addr,cur);
+    savefile(addr,superText);
 }
 
 void MainWindow::on_actionopen_triggered()
 {
-    openfile(addr,cur);
+    openfile(addr,superText);
 }
-
+//------------------------------------------------------------------------
 
 lineheAD::lineheAD()
 {
@@ -182,7 +329,7 @@ bool temText::deleteLine(lineheAD* target)
     return true;
 }
 //----------------------------------
-curSOR::curSOR()
+myTextEdit::myTextEdit()
 {
     nowLine=nullptr;
     firstLine=nullptr;
@@ -192,13 +339,13 @@ curSOR::curSOR()
     this->row=1;
     this->col=1;
 }
-void curSOR::setAxis(int tR,int tC)
+void myTextEdit::setAxis(int tR,int tC)
 {
     this->row=tR;
     this->col=tC;
     nowLine=axisToPtr(tR);
 }
-lineheAD* curSOR::axisToPtr(int row)
+lineheAD* myTextEdit::axisToPtr(int row)
 {
     lineheAD* tLine=this->firstLine;
     int i=1;
@@ -209,7 +356,7 @@ lineheAD* curSOR::axisToPtr(int row)
     return tLine;
 }
 
-void curSOR::insertStr(std::string str)
+void myTextEdit::insertStr(std::string str)
 {
     // std::cout<<"BEGIN insert!!"<<std::endl; //FIXME:
     //TODO:大于100的情况
@@ -230,7 +377,7 @@ void curSOR::insertStr(std::string str)
 
     }
 }
-void curSOR::delFULL(void)
+void myTextEdit::delFULL(void)
 {
     delete WHOLETEXT;
     WHOLETEXT= new temText;
@@ -239,7 +386,7 @@ void curSOR::delFULL(void)
     this->row=1;
     this->col=1;
 }
-void curSOR::delNL(int type)
+void myTextEdit::delNL(int type)
 {
     if(type==1||nowLine==firstLine){
         col=1;
@@ -252,7 +399,7 @@ void curSOR::delNL(int type)
         col=nowLine->getSize()+1;
     }
 }
-void curSOR::delC(int isbackspace)
+void myTextEdit::delC(int isbackspace)
 {
     std::string temp;
     if(isbackspace>0){
@@ -279,21 +426,20 @@ void curSOR::delC(int isbackspace)
     }
 }
 
-
-void curSOR::moveArray(lineheAD* t,int index,int n)
+void myTextEdit::moveArray(lineheAD* t,int index,int n)
 {
     int DELTA=t->getSize()-(index+n);
     for(int i=0;i<=DELTA;i++)//=号是因为把终结符也移动了
         t->chs[index+i]=t->chs[index+n+i];
 }
 
-std::string curSOR::cutBlock(int r2,int c2)
+std::string myTextEdit::cutBlock(int r2,int c2)
 {
     std::string rs=copyBlock(row,col,r2,c2);
     delBlock(r2,c2);
     return rs;
 }
-void curSOR::delBlock(int r2,int c2)
+void myTextEdit::delBlock(int r2,int c2)
 {
     int oC=col;
     lineheAD* endL=axisToPtr(r2);
@@ -316,7 +462,7 @@ void curSOR::delBlock(int r2,int c2)
     getAxis();
 }
 
-std::string curSOR::copyBlock(int r1,int c1,int r2,int c2)
+std::string myTextEdit::copyBlock(int r1,int c1,int r2,int c2)
 {
     std::string rs;
     std::string add;
@@ -340,14 +486,14 @@ std::string curSOR::copyBlock(int r1,int c1,int r2,int c2)
     return rs;
 }
 
-void curSOR::printNL(void)
+void myTextEdit::printNL(void)
 {
     for(int i=0;nowLine->chs[i]!='\0';i++)
         std::cout<<nowLine->chs[i];
     std::cout<<std::endl;
 
 }
-void curSOR::printFULL(void)
+void myTextEdit::printFULL(void)
 {
     for(int i=1;i<=WHOLETEXT->linecounter;i++){
         setAxis(i,1);

@@ -1,11 +1,50 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include <QMainWindow>
+#include <QObject>
+#include <QTextEdit>
+#include <QTextCursor>
+#include <QKeyEvent>
+
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <cstdlib>
 #define CTYPE char
+
+namespace Ui {
+class MainWindow;
+}
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
+
+private slots:
+    void on_actionnew_triggered();
+
+    void on_actionsave_triggered();
+
+    void on_actionopen_triggered();
+
+    bool openfile(char* addr,myTextEdit & textBody);
+
+    bool savefile(char* addr,myTextEdit & textBody);
+
+    bool newfile(char* addr,myTextEdit & textBody);
+private:
+    Ui::MainWindow *ui;
+    QTextEdit *textEdit;
+    QTextCursor tcursor;
+};
+//-------------------datastructure------
 typedef class lineheAD//行链表，双向链表
 {
 public:
@@ -36,11 +75,11 @@ private:
 
 typedef class temText//文字编辑内存
 {
-    friend class curSOR;
+    friend class myTextEdit;
 public:
     temText();
     ~temText();
-    // curSOR *cur;
+    // myTextEdit *cur;
     lineheAD* newLine(void);//在最后加一行
     lineheAD* insertLine(lineheAD* preLine,CTYPE* str,int n);//在指定行后插一行
     lineheAD* getFirst() { return firstLine; }
@@ -52,11 +91,11 @@ private:
 
 }temText;
 
-typedef class curSOR//逻辑上的光标，不是实际的那个，用于在链表中定位
+typedef class myTextEdit//逻辑上的光标，不是实际的那个，用于在链表中定位
 {
 public:
-    curSOR();
-    ~curSOR();
+    myTextEdit();
+    ~myTextEdit();
     lineheAD* getNowLine(){return nowLine;}
     lineheAD* getFirstLine(){return firstLine;}
     int getLineN(){return WHOLETEXT->linecounter;}
@@ -88,36 +127,7 @@ private:
     temText* WHOLETEXT;
     int row;//从1开始计算
     int col;//从1开始计算，表示光标后字符的序号
-}curSOR;
-
-namespace Ui {
-class MainWindow;
-}
-
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
-
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-private slots:
-    void on_actionnew_triggered();
-
-    void on_actionsave_triggered();
-
-    void on_actionopen_triggered();
-
-    bool openfile(char* addr,curSOR & cur);
-
-    bool savefile(char* addr,curSOR & cur);
-
-    bool newfile(char* addr,curSOR & cur);
-private:
-    Ui::MainWindow *ui;
-};
-
+}myTextEdit;
 
 #endif
  // MAINWINDOW_H

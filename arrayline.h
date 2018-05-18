@@ -162,6 +162,7 @@ public:
 	std::string cutBlock(int r2,int c2);//需要先移动光标剪切，用了copy和del
 	void delBlock(int r2,int c2);//需要移动光标，删除从(r1,c1)到(r2,c2)的内容，注意删完坐标不变
 	std::string copyBlock(int r1,int c1,int r2,int c2);//不用先移动光标,取块，string中转,QCHAR的转换函数
+	std::string copyBlock(int r2,int c2);//COPY的重载
 	void moveArray(linehead* t,int index,int n);//包含index，删除此后n个字符
 
 	//FIXME:测试打印函数
@@ -331,7 +332,29 @@ std::string cursor::copyBlock(int r1,int c1,int r2,int c2)
 	}
 	return rs;
 }
-
+std::string cursor::copyBlock(int r2,int c2)
+{
+	std::string rs;
+	std::string add;
+	linehead* iLine=axisToPtr(this->row);
+	if(this->row==r2)
+		rs.append(&(iLine->chs[this->col-1]),c2-this->col+1);
+	else{
+		add=&(iLine->chs[this->col-1]);
+		rs.append(add);
+		int i=this->row+1;
+		while(i<r2){
+			rs.append("\n");
+			iLine=iLine->getNext();
+			rs.append(iLine->chs);
+			i++;
+		}
+		iLine=iLine->getNext();
+		rs.append("\n");
+		rs.append(iLine->chs,c2);
+	}
+	return rs;
+}
 void cursor::printNL(void)
 {       
 	for(int i=0;nowLine->chs[i]!='\0';i++)
