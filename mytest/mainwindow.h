@@ -14,7 +14,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 private slots:
 
     void on_textEdit_textChanged();
@@ -27,6 +28,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QTextCursor tcursor;
 };
 
 #endif // MAINWINDOW_H

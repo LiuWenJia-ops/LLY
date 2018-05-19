@@ -434,8 +434,14 @@ void MainWindow::on_actionsave_triggered()
        *addr="\0";
 }
 
-void MainWindow::on_textEdit_textChanged()
+void MainWindow::on_textEdit_textChanged()//一旦文字部分有变化就重新写入
 {
+    ui->textEdit->clear();
+    lineheAD *temPtr=textBody.getFirstLine();
+    while(temPtr!=nullptr){
+        qsStr = QString(temPtr->chs);
+        ui->textEdit->append(qsStr);//显示到textedit
+    }
 
 }
 

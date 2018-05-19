@@ -2,7 +2,8 @@
 
 #include "ui_mainwindow.h"
 
-
+static myTextEdit superText;
+string buffer;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -111,16 +112,23 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                      QTextEdit::keyPressEvent(event);
              }
             else if(keyEvent->modifiers() == Qt::ControlModifier){
-                if(KeyEvent->key()==Qt::Key_C&&flag == 1){//复制
-                    //得到块首位的行列号，
-                    //把返回的string存到全局变量buffer里面
-
-                }
                 if(KeyEvent->key()==Qt::Key_V){//粘贴
                     //curSOR内有起始光标
-                    //把buffer插入光标以后就好
+                    //把buffer插入光标以后
+                    superText.insertStr(buffer);
+                    //显示变化
+                    
+                }
+
+                int row2,col2;//头已经在superText里面了
+                 //得到块首位的行列号，
+                    //把返回的string存到全局变量buffer里面
+                if(KeyEvent->key()==Qt::Key_C&&flag == 1){//复制
+                    buffer=superText.copyBlock(row2,col2);
                 }
                 if(KeyEvent->key()==Qt::Key_X&&flag == 1){//剪切
+                     buffer=superText.cutBlock(row2,col2);
+                      //显示变化
                 }
             }
 

@@ -111,7 +111,25 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                  else
                      QTextEdit::keyPressEvent(event);
              }
+             else if(keyEvent->modifiers() == Qt::ControlModifier){
+                if(KeyEvent->key()==Qt::Key_V){//粘贴
+                    //curSOR内有起始光标
+                    //把buffer插入光标以后
+                    superText.insertStr(buffer);
+                    //显示变化
+                    
+                }
 
+                int row2,col2;//头已经在superText里面了
+                 //得到块首位的行列号，
+                    //把返回的string存到全局变量buffer里面
+                if(KeyEvent->key()==Qt::Key_C&&flag == 1){//复制
+                    buffer=superText.copyBlock(row2,col2);
+                }
+                if(KeyEvent->key()==Qt::Key_X&&flag == 1){//剪切
+                     buffer=superText.cutBlock(row2,col2);
+                      //显示变化
+            }
 
              else if (){//Q:输入字符
 
@@ -256,7 +274,22 @@ void lineheAD::setSize(int n)
     strSize=n;
     this->chs[n]='\0';
 }
-
+bool temText::deleteLine(lineheAD* target)
+{
+    if(target==nullptr){
+        std::cout<<"target line not exist"<<std::endl;
+        return false;
+    }
+    //TODO:有空可以优化成一个临时变量
+    lineheAD* pre=target->getPre();
+    lineheAD* next=target->getNext();
+    target->getPre()->setNext(target->getNext());
+    if(target->getNext()!=nullptr)
+        target->getNext()->setPre(target->getPre());
+    delete target;
+    this->linecounter--;
+    return true;
+}
 //------------------------------------
 
 temText::temText()
@@ -311,22 +344,7 @@ lineheAD* temText::insertLine(lineheAD* preLine,CTYPE* str,int n)//
     tempB->setSize(n);
     return tempB;
 }
-bool temText::deleteLine(lineheAD* target)
-{
-    if(target==nullptr){
-        std::cout<<"target line not exist"<<std::endl;
-        return false;
-    }
-    //TODO:有空可以优化成一个临时变量
-    lineheAD* pre=target->getPre();
-    lineheAD* next=target->getNext();
-    target->getPre()->setNext(target->getNext());
-    if(target->getNext()!=nullptr)
-        target->getNext()->setPre(target->getPre());
-    delete target;
-    this->linecounter--;
-    return true;
-}
+
 //----------------------------------
 myTextEdit::myTextEdit()
 {
