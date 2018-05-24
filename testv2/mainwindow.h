@@ -28,7 +28,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-   
+    QTextCursor tcursor;
 };
 
 #endif // MAINWINDOW_H

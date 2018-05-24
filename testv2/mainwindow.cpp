@@ -391,29 +391,7 @@ myTextEdit textBody;
 char * addr;
 string buffer;
 //------------------------------------------------
-void flush(Ui::MainWindow * uimw){
-    QString qstr;
-    uimw->textEdit->clear();
-    lineheAD *tem=textBody.getFirstLine();
-    while(tem!=nullptr){
-        qstr=tem->chs;
-        uimw->textEdit->append(qstr);
-    }
-}
-void setTwoEnd(Ui::MainWindow * uimw,int & r,int & c){//FIXME:不能传ui???
-    int r2,c2;
-    QTextCursor cursor = uimw->textEdit->textCursor();
-    int start = cursor.selectionStart();
-    int end = cursor.selectionEnd();
-    if(!cursor.hasSelection())
-        return; // No selection available
 
-    cursor.setPosition(start);
-    textBody.setAxis(cursor.blockNumber(),cursor.position() - cursor.block().position());
-    cursor.setPosition(end, QTextCursor::KeepAnchor);
-    r=cursor.blockNumber();
-    c=cursor.position() - cursor.block().position();
-}
 //-------------------------------------------------
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -426,6 +404,31 @@ MainWindow::MainWindow(QWidget *parent) :
        ui->textEdit->installEventFilter(this);
        //textEdit->viewPort()->installEventFilter(this);
        //TODO:tcursor未初始化
+}
+
+void MainWindow::flush(){
+    QString qstr;
+    this->textEdit->clear();
+    lineheAD *tem=textBody.getFirstLine();
+    while(tem!=nullptr){
+        qstr=tem->chs;
+        this->textEdit->append(qstr);
+    }
+}
+
+void MainWindow::setTwoEnd(int & r,int & c){//FIXME:不能传ui???
+    int r2,c2;
+    QTextCursor cursor = this->textEdit->textCursor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
+    if(!cursor.hasSelection())
+        return; // No selection available
+
+    cursor.setPosition(start);
+    textBody.setAxis(cursor.blockNumber(),cursor.position() - cursor.block().position());
+    cursor.setPosition(end, QTextCursor::KeepAnchor);
+    r=cursor.blockNumber();
+    c=cursor.position() - cursor.block().position();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
@@ -567,7 +570,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
              return false;
          }
 
-         flush(ui);//将内存写入显示框内
+         this->flush();//将内存写入显示框内
          return true;
      }
      else{
@@ -646,7 +649,7 @@ void MainWindow::on_actionsave_triggered()
 
 void MainWindow::on_textEdit_textChanged()
 {
-
+    this->flush();
 }
 
 
