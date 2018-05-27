@@ -8,5 +8,5 @@ int main(void)
     }
     newfile<<"total 12 characters per line above";
     newfile.close();
-    return 1;
+    return 0;
 }
