@@ -184,30 +184,61 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 //            textBody.getAxis();
 //            qDebug()<<"current axis in back is: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
             if (keyEvent->key() == Qt::Key_Left){
-//                if(k->state() == Qt::ShiftButton){
+                if (keyEvent->modifiers() == Qt::ShiftModifier){
                     //TODO:查看QTextCursor的移动如何实现
                     //猜测用keep/moveanchor来区别shift+R/L
-//                }else{
+                    textEdit->moveCursor(QTextCursor::Left, QTextCursor::KeepAnchor);
+                    tcursor=textEdit->textCursor();
+                    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+                    qDebug()<<"complete action responsing to key [shift]+[←]";
+                }else{
                     textEdit->moveCursor(QTextCursor::Left, QTextCursor::MoveAnchor);
                     tcursor=textEdit->textCursor();
                     textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
                     qDebug()<<"complete action responsing to key [←]";
-//                }
+                }
             }else if (keyEvent->key() == Qt::Key_Right){
-                textEdit->moveCursor(QTextCursor::Right, QTextCursor::MoveAnchor);
-                tcursor=textEdit->textCursor();
-                textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
-                qDebug()<<"complete action responsing to key [→]";
+                if (keyEvent->modifiers() == Qt::ShiftModifier){
+                    //TODO:查看QTextCursor的移动如何实现
+                    //猜测用keep/moveanchor来区别shift+R/L
+                    textEdit->moveCursor(QTextCursor::Right, QTextCursor::KeepAnchor);
+                    tcursor=textEdit->textCursor();
+                    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+                    qDebug()<<"complete action responsing to key [shift]+[→]";
+                }else{
+                    textEdit->moveCursor(QTextCursor::Right, QTextCursor::MoveAnchor);
+                    tcursor=textEdit->textCursor();
+                    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+                    qDebug()<<"complete action responsing to key [→]";
+                }
             }else if (keyEvent->key() == Qt::Key_Up){
-                textEdit->moveCursor(QTextCursor::Up, QTextCursor::MoveAnchor);
-                tcursor=textEdit->textCursor();
-                textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
-                qDebug()<<"complete action responsing to key [↑]";
+                if (keyEvent->modifiers() == Qt::ShiftModifier){
+                    //TODO:查看QTextCursor的移动如何实现
+                    //猜测用keep/moveanchor来区别shift+R/L
+                    textEdit->moveCursor(QTextCursor::Up, QTextCursor::KeepAnchor);
+                    tcursor=textEdit->textCursor();
+                    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+                    qDebug()<<"complete action responsing to key [shift]+[↑]";
+                }else{
+                    textEdit->moveCursor(QTextCursor::Up, QTextCursor::MoveAnchor);
+                    tcursor=textEdit->textCursor();
+                    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+                    qDebug()<<"complete action responsing to key [↑]";
+                }
             }else if (keyEvent->key() == Qt::Key_Down){
-                textEdit->moveCursor(QTextCursor::Down, QTextCursor::MoveAnchor);
-                tcursor=textEdit->textCursor();
-                textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
-                qDebug()<<"complete action responsing to key [↓]";
+                if (keyEvent->modifiers() == Qt::ShiftModifier){
+                    //TODO:查看QTextCursor的移动如何实现
+                    //猜测用keep/moveanchor来区别shift+R/L
+                    textEdit->moveCursor(QTextCursor::Down, QTextCursor::KeepAnchor);
+                    tcursor=textEdit->textCursor();
+                    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+                    qDebug()<<"complete action responsing to key [shift]+[↑]";
+                }else{
+                    textEdit->moveCursor(QTextCursor::Down, QTextCursor::MoveAnchor);
+                    tcursor=textEdit->textCursor();
+                    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+                    qDebug()<<"complete action responsing to key [↓]";
+                }
             }else if (keyEvent->key() == Qt::Key_End){
                 textEdit->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
                 tcursor=textEdit->textCursor();
@@ -219,19 +250,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                  if (tcursor.hasSelection()){//已做块选择
                    setTwoEnd(r2,c2);
                    textBody.delBlock(r2,c2);//FIXME:块尾
-                 }else
+                 }else{
                     textBody.delC(1);
+                 }
+                 flush();
 //                qDebug()<<"the block begin is: "<<'('<<textBody.getRow()<<','<<textBody.getCol()<<')';
 //                qDebug()<<"the block end is: "<<'('<<r2<<','<<c2<<')';
             }else if (keyEvent->key() == Qt::Key_Delete){
                 if (tcursor.hasSelection()){//已做块选择
-                  int r2,c2;
-//                    setTwoEnd(ui,r2,c2);
                   setTwoEnd(r2,c2);
                   textBody.delBlock(r2,c2);//FIXME:块尾
                 }else
                     textBody.delC(0);
-
+                flush();
            }
 //            --------------------键入操作---------------
             else if(keyEvent->key() == Qt::Key_CapsLock){
@@ -244,17 +275,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                else
                    tem.push_back(char(int(keyEvent->key())-int(Qt::Key_A)+int('a')));
                textBody.insertStr(tem);
+               flush();
             }
             else if (keyEvent->key()<=int(Qt::Key_9)&&keyEvent->key()>=int(Qt::Key_0)){
                 std::string tem;
                 tem.push_back(char(int(keyEvent->key())-int(Qt::Key_0)+int('0')));
                 textBody.insertStr(tem);
+                flush();
             }
 //            --------------------快捷键操作(不可用)---------------
 //            else if (keyEvent->modifiers() == Qt::ShiftModifier){
 //                //Q:能否能保持keep;选区能否自己识别前后关系;刷新后能否保持选区
 //                if (keyEvent->key() == Qt::Key_Left)
-//                    textEdit->moveCursor(QTextCursor::Left, QTextCursor::KeepAnchor);
+//                    textEdit->moveCursor(QTextCursor::Left, QTextCursor::MoveAnchor);
 //                if (keyEvent->key() == Qt::Key_Right)
 //                    textEdit->moveCursor(QTextCursor::Right, QTextCursor::KeepAnchor);
 //                else
@@ -266,9 +299,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 qDebug()<<"|undifined keyPress Action|";
                 qDebug()<<"|-------------------------|";
             }
-
-            flush();
             qDebug()<<"tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
+            qDebug()<<"axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
             return true;
         }
 //        //响应鼠标事件

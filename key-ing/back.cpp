@@ -238,8 +238,8 @@ void myTextEdit::delBlock(int r2,int c2)
     int oC=col;
     lineheAD* endL=axisToPtr(r2);
     if(row==r2){
-        moveArray(nowLine,col-1,c2-col+1);
-        nowLine->setSize(nowLine->getSize()-(c2-col+1));
+        moveArray(nowLine,col-1,c2-col);
+        nowLine->setSize(nowLine->getSize()-(c2-col));
     }
     else{
         moveArray(nowLine,col-1,nowLine->getSize()-col+1);
