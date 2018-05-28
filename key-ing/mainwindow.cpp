@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     textEdit->setFont(QFont("Consolas", 20));
     setCentralWidget(textEdit);
     textEdit->installEventFilter(this);
+    textBody.getAxis();
+    on_actionnew_triggered();
     //---------------------------------------------创建菜单栏----------------------------------------
     //定义openAction
     openAction =new QAction(tr("open file"),this);
@@ -51,7 +53,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 
 MainWindow::~MainWindow()
 {
-//    delete ui;
 }
 //-------------------------------------------------
 //-------------------------------------------------
@@ -98,38 +99,30 @@ void MainWindow::on_actionopen_triggered()
 
 void MainWindow::on_actionnew_triggered()
 {
-    //   if(addr[0]){
-    //       // TODO:询问是否保存当前文件并新建,
-    //        //若否，直接返回；
-    //        //若是，保存文件
-    //        {
-    //            savefile(addr,superText);
-    //            addr[0]="\0";
-    //        }
-    //   }//清空body，还原cur位置
-      textBody.delFULL();
-      /*ui->*/textEdit->clear();
+    if(!addr.empty()){
+        std::string().swap(addr);
+    }
+    textBody.delFULL();
+    textBody.setAxis(1,1);
+    flush();
 }
 
 void MainWindow::on_actionsave_triggered()
 {
-    //    if(!addr[0]){//TODO:新建的文件无原地址，应该有什么打开系统文件夹的操作
-    //        //TODO:输入保存路径
-    //    }
-//        std::cout<<addr<<std::endl;
-        std::ofstream buf(addr);
-        std::cout<<"run save: "<<addr<<std::endl;
-        //FIXME:偷懒,没有检查打开失败的情况 (●'◡'●)
-        lineheAD * tem=textBody.getFirstLine();
-        if(tem==nullptr)
-            std::cout<<"cashe empty"<<std::endl;
-        else
-            while(tem!=nullptr){
-               buf<<tem->chs<<'\n';
-                tem=tem->getNext();
-            }
-//        free(addr);
-//       *addr='\0';
+//    if(addr.empty()){
+
+//    }
+    std::ofstream buf(addr);
+    std::cout<<"run save: "<<addr<<std::endl;
+    //FIXME:偷懒,没有检查打开失败的情况 (●'◡'●)
+    lineheAD * tem=textBody.getFirstLine();
+    if(tem==nullptr)
+        std::cout<<"cashe empty"<<std::endl;
+    else
+        while(tem!=nullptr){
+           buf<<tem->chs<<'\n';
+            tem=tem->getNext();
+        }
 }
 
 void MainWindow::on_textEdit_textChanged()
@@ -140,6 +133,7 @@ void MainWindow::on_textEdit_textChanged()
 //---------------------------------------------textEdit----------------------------------------
 void MainWindow::correctEditCursor(int row,int col)
 {
+    tcursor=textEdit->textCursor();
     tcursor.movePosition(QTextCursor::Start,QTextCursor::MoveAnchor,1);
     tcursor.movePosition(QTextCursor::NextBlock,QTextCursor::MoveAnchor,row-1);
     tcursor.movePosition(QTextCursor::NextCharacter,QTextCursor::MoveAnchor,col-1);
