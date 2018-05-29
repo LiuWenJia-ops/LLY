@@ -1,0 +1,10 @@
+line1:-----E
+line2:-----E
+line3:-----E
+line4:-----E
+line5:-----E
+line6:-----E
+line7:-----E
+line8:-----E
+line9:-----E
+total 12 characters per line above
