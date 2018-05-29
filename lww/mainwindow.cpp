@@ -6,9 +6,6 @@
 #include "qmessagebox.h"
 
 #include "back.h"
-
-
-
 //---------------------------------------------------
 myTextEdit textBody;
 //char * addr;  char*会在open之后被释放
@@ -78,12 +75,15 @@ void MainWindow::on_actionopen_triggered()
                     addr.clear();//清空地址
             }
     }//清空body，还原cur位置
+
+    textBody.delFULL();
+    this->textEdit->clear();
     QString qsStr;
     QString filename = QFileDialog::getOpenFileName(//得到文件路径
                         this,
                         tr("Open Document"),
                         QDir::currentPath(),//打开程序地址下的目录
-                        "Text files (*.txt )");//file filter,只能打开txt
+                        "lly files (*.lly )");//file filter,只能打开txt
 
     if (!filename.isNull()) { //用户选择了文件
         QByteArray ba=filename.toUtf8();
@@ -106,18 +106,16 @@ void MainWindow::on_actionopen_triggered()
             whl.append(media);whl.append("\n");
         }
         textBody.insertStr(whl);
-        textBody.setAxis(1,12);
+        textBody.setAxis(1,12);//????
         textBody.printFULL();
-        std::cout<<addr<<std::endl;
+        //std::cout<<addr<<std::endl;
         tcursor=textEdit->textCursor();//设置光标
         buf.close();
      }
-
 }
 
 void MainWindow::on_actionnew_triggered()
 {
-
     QMessageBox::StandardButton rb = QMessageBox::question(this, "New file",
                                                             "Do you want to save the changes of the current text?",
                                                              QMessageBox::Yes | QMessageBox::No, 
@@ -139,7 +137,7 @@ void MainWindow::on_actionsave_triggered()
                                     this,
                                     tr("Save Document"),
                                     QDir::currentPath(),//打开程序地址下的目录
-                                    "Text files (*.txt )");//file filter,只能打开txt
+                                    "lly files (*.lly )");//file filter,只能打开txt
 
         if (!filepath.isNull()) { //用户选择了地址,改变地址到这里
             QByteArray ba=filepath.toUtf8();
@@ -202,18 +200,12 @@ void MainWindow::flush(){//TESTDONE: flush后必须矫正坐标
     this->textEdit->clear();
     lineheAD *tem=textBody.getFirstLine();
     while(tem!=nullptr){
-        if(tem->chs[0]=='\n'){//FIXME:空行显示问题
-//            tcursor=textEdit->textCursor();
-//            tcursor.movePosition(QTextCursor::Down,QTextCursor::MoveAnchor,1);
-//            tcursor.movePosition(QTextCursor::StartOfLine,QTextCursor::MoveAnchor,1);
-//            textEdit->setTextCursor(tcursor);
-            qDebug()<<"tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
-            qDebug()<<"axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
-        }
         qstr=QString::fromUtf8(tem->chs);
         qDebug()<<qstr;
         this->textEdit->append(qstr);
         tem=tem->getNext();
+        qDebug()<<"flagg2: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
+        qDebug()<<"axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
     }
     correctEditCursor(textBody.getRow(),textBody.getCol());
 }
@@ -332,12 +324,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 flush();
             }
             else if(keyEvent->key()==int(Qt::Key_Return)){
-                // textBody.newLine();
-                textBody.setAxis(textBody.getRow(),textBody.getCol()+1);
                 std::string enTer("\n\n");
                 textBody.insertStr(enTer);
                 flush();
             }
+            //else if()//
 //            --------------------快捷键操作(不可用)---------------
 //            else if (keyEvent->modifiers() == Qt::ShiftModifier){
 //                //Q:能否能保持keep;选区能否自己识别前后关系;刷新后能否保持选区
