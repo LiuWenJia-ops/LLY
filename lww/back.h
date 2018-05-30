@@ -18,7 +18,7 @@ typedef class searchResult
 {
 public:
     searchResult();
-    searchResult(myTextEdit* TEXT,std::string toFind);
+    searchResult(myTextEdit* TEXT,std::string toFind,bool IC);
     ~searchResult();
     int getNumber(void){
         return Number;
@@ -27,6 +27,7 @@ public:
         return allResults.at(INDEX);
     }
     int nowINDEX;
+    bool ignoreCap;
     void printALL(void);
     void getNextVal(std::string substr,int* next);
     int Index_KMP(std::string S,std::string T,int pos,const int* const next, bool ignCap);

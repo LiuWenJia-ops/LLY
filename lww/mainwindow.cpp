@@ -112,9 +112,9 @@ void MainWindow::on_actionopen_triggered()
         buf.close();
      }
     //FIXME: test
-    searchResult* testS=new searchResult(&textBody,"--");
-    testS->printALL();
-    delete testS;
+//    searchResult* testS=new searchResult(&textBody,"e",true);
+//    testS->printALL();
+//    delete testS;
 }
 
 void MainWindow::on_actionnew_triggered()

@@ -3,14 +3,16 @@ searchResult::searchResult()
 {
     Number=0;
     nowINDEX=1;
+    ignoreCap=false;
 }
 searchResult::~searchResult()
 {
     for(int i=0;i<allResults.size();i++)
         delete allResults.at(i);
 }
-searchResult::searchResult(myTextEdit* TX,std::string TF)
+searchResult::searchResult(myTextEdit* TX,std::string TF,bool IC)
 {
+    ignoreCap=IC;
     TEXT=TX;
     Number=0;
     nowINDEX=1;
@@ -27,7 +29,7 @@ void searchResult::printALL(void)
               <<std::endl;
     }
 }
-void searchResult::search(void)
+void searchResult::search()
 {
     // int oR=TEXT->getRow(),oC=TEXT->getCol();
     int lineNumber=1,c1,c2,temp;
@@ -40,7 +42,7 @@ void searchResult::search(void)
         c1=1;c2=1;
         S=TEXT->copyBlock(lineNumber,1,lineNumber,dealingLine->getSize()+1);
         while(c1+toFind.size()-1<=S.size()){
-            c1=Index_KMP(S,toFind,c2,nextV,false);
+            c1=Index_KMP(S,toFind,c2,nextV,this->ignoreCap);
             if(c1<0)
                 break;
             c2=c1+toFind.size();
