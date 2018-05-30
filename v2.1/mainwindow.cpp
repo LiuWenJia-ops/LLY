@@ -13,6 +13,7 @@ std::string addr;
 QTextCursor tcursor;
 bool isUP=false;
 bool flushFlag=1;
+bool hasSelection;
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 {
@@ -55,20 +56,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     file->addAction(newAction);
     status->addAction(newAction);
 
-    //connect(textEdit,SIGNAL(cursorPositionChanged()),this,SLOT());
-    //connect(textEdit,&MyEvent::mousePressEvent,this,&MainWindow::mouseCursorChanged);
-
-
-
     //---------------------------------------------添加显示控件----------------------------------------
 //    label
-}
 
-//void MainWindow::mouseCursorChanged()
-//{
-//    tcursor=this->textEdit->textCursor();
-//    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
-//}
+    position = new QLabel(this);
+    status->addPermanentWidget(position);
+    connect(textEdit,SIGNAL(cursorPositionChanged()),this,SLOT(ShowTextRowCol()));
+
+}
 
 MainWindow::~MainWindow()
 {
@@ -185,7 +180,16 @@ void MainWindow::on_textEdit_textChanged()
 {
 
 }
-
+//---------------------------------------------Label----------------------------------------
+void MainWindow::ShowTextRowCol()
+{
+    if (!hasSelection)
+        this->position->setText(tr("Row:%1 Col:%2 | PreTotal:%3").arg(tcursor.blockNumber()+1).arg(tcursor.position()-tcursor.block().position()+1).arg(tcursor.position()));
+    else
+        //得到前一状态position
+        //this->position->setText(tr("Row:%1 Col:%2 | Selection:%3").arg(tcursor.blockNumber()+1).arg(tcursor.position()-tcursor.block().position()+1).arg(tcursor.position()));
+        this->position->setText(tr("Row:%1 Col:%2 ").arg(tcursor.blockNumber()+1).arg(tcursor.position()-tcursor.block().position()+1));
+}
 //---------------------------------------------textEdit----------------------------------------
 void MainWindow::correctEditCursor(int row,int col)
 {
@@ -229,24 +233,21 @@ void MainWindow::flush(){//TESTDONE: flush后必须矫正坐标
 //---------------------------------------------事件过滤器----------------------------------------
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    MyEvent myEvent;
-    int r2,c2,click=0;
+    int r2,c2;
     if (obj == textEdit) {
         qDebug()<<"Event:"<<event;
 //        qDebug()<<"event start:tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
 //        qDebug()<<"event start:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
         if (tcursor.hasSelection()){
             qDebug()<<"detect Selection";
-        }
+            hasSelection=1;
+        } else
+            hasSelection=0;
         //响应按键事件，注意：快捷键Ctr+O和Ctr+S已经加在了菜单栏
-
         if (event->type() == QEvent::KeyPress) {
             qDebug()<<"detect keyPress Event";
             QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
 //            --------------------键盘移动光标位置---------------
-//            用下列代码测试键盘移动光标后，在内存中的坐标是正确的（经测试发现行、列数应该+1）
-//            textBody.getAxis();
-//            qDebug()<<"current axis in back is: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
             if (keyEvent->key() == Qt::Key_Left){
                 if (keyEvent->modifiers() == Qt::ShiftModifier){
                     //TODO:查看QTextCursor的移动如何实现
@@ -366,48 +367,29 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 textBody.insertStr(enTer);
                 flush();
             }
-            //else if()//
-//            --------------------快捷键操作(不可用)---------------
-//            else if (keyEvent->modifiers() == Qt::ShiftModifier){
-//                //Q:能否能保持keep;选区能否自己识别前后关系;刷新后能否保持选区
-//                if (keyEvent->key() == Qt::Key_Left)
-//                    textEdit->moveCursor(QTextCursor::Left, QTextCursor::MoveAnchor);
-//                if (keyEvent->key() == Qt::Key_Right)
-//                    textEdit->moveCursor(QTextCursor::Right, QTextCursor::KeepAnchor);
-//                else
-//                    myEvent.keyPressEvent(keyEvent);
-//            }
-//            --------------------common operation---------------
+//            --------------------不可识别的操作---------------
             else{//注：不在这里调用父类，无响应的情况课用作调试
-                std::string str=std::to_string(keyEvent->key());
-//                QString qstr = QString::fromStdString(str);
-//                qDebug()<< qstr;
                 qDebug()<<"|-------------------------|";
                 qDebug()<<"|undifined keyPress Action|";
                 qDebug()<<"|-------------------------|";
             }
+
             qDebug()<<"tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
             qDebug()<<"axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
             return true;
         }
-//        //响应鼠标事件
-
-//        else if (event->type() == QEvent::InputMethodQuery){//不能是else if
-//                tcursor = textEdit->textCursor();
-//                if (click==0){
-//                    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
-//                    click=1;
-//                }
-//                qDebug()<<"++++setAxis"<<'('<<textBody.getRow()<<','<<textBody.getCol()<<')';
-//                return true;
-//        }
-        else {
-            tcursor=textEdit->textCursor();
-            textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+//          --------------------响应鼠标事件--------------------
+        else if(event->type()==QEvent::InputMethodQuery){            
+            if(flushFlag){//在flush中触发的inputmethod的事件来自对textedit文本的修改，
+                          //这时我们拒绝让被文本控制的tcursor控制textbody的光标
+                tcursor=textEdit->textCursor();
+                textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+            }    
             qDebug()<<"else:tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
             qDebug()<<"else:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
+            return true;
+        }else
             return QMainWindow::eventFilter(obj, event);
-        }
     } else {
         // pass the event on to the parent class
         return QMainWindow::eventFilter(obj, event);
