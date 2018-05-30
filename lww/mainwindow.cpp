@@ -12,6 +12,7 @@ myTextEdit textBody;
 std::string addr;
 QTextCursor tcursor;
 bool isUP=false;
+bool flushFlag=1;
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 {
@@ -53,9 +54,21 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     //添加new
     file->addAction(newAction);
     status->addAction(newAction);
+
+    //connect(textEdit,SIGNAL(cursorPositionChanged()),this,SLOT());
+    //connect(textEdit,&MyEvent::mousePressEvent,this,&MainWindow::mouseCursorChanged);
+
+
+
     //---------------------------------------------添加显示控件----------------------------------------
 //    label
 }
+
+//void MainWindow::mouseCursorChanged()
+//{
+//    tcursor=this->textEdit->textCursor();
+//    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+//}
 
 MainWindow::~MainWindow()
 {
@@ -176,11 +189,15 @@ void MainWindow::on_textEdit_textChanged()
 //---------------------------------------------textEdit----------------------------------------
 void MainWindow::correctEditCursor(int row,int col)
 {
+    qDebug()<<"row:"<<row;
+    qDebug()<<"col:"<<col;
     tcursor=textEdit->textCursor();
     tcursor.movePosition(QTextCursor::Start,QTextCursor::MoveAnchor,1);
     tcursor.movePosition(QTextCursor::NextBlock,QTextCursor::MoveAnchor,row-1);
     tcursor.movePosition(QTextCursor::NextCharacter,QTextCursor::MoveAnchor,col-1);
     textEdit->setTextCursor(tcursor);
+    qDebug()<<"correct cursor:tcursor"<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
+    qDebug()<<"correct cursor:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
 }
 void MainWindow::setTwoEnd(int & r,int & c){//TOTEST:确认结束点是否正确
     QTextCursor cursor = textEdit->textCursor();
@@ -196,6 +213,7 @@ void MainWindow::setTwoEnd(int & r,int & c){//TOTEST:确认结束点是否正确
     c=cursor.position() - cursor.block().position()+1;
 }
 void MainWindow::flush(){//TESTDONE: flush后必须矫正坐标
+    flushFlag=0;
     QString qstr;
     this->textEdit->clear();
     lineheAD *tem=textBody.getFirstLine();
@@ -204,9 +222,8 @@ void MainWindow::flush(){//TESTDONE: flush后必须矫正坐标
         qDebug()<<qstr;
         this->textEdit->append(qstr);
         tem=tem->getNext();
-        qDebug()<<"flagg2: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
-        qDebug()<<"axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
     }
+    flushFlag=1;
     correctEditCursor(textBody.getRow(),textBody.getCol());
 }
 //---------------------------------------------事件过滤器----------------------------------------
@@ -215,6 +232,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     MyEvent myEvent;
     int r2,c2,click=0;
     if (obj == textEdit) {
+        qDebug()<<"Event:"<<event;
+//        qDebug()<<"event start:tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
+//        qDebug()<<"event start:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
         if (tcursor.hasSelection()){
             qDebug()<<"detect Selection";
         }
@@ -297,9 +317,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                  }else{
                     textBody.delC(1);
                  }
-                 flush();
-//                qDebug()<<"the block begin is: "<<'('<<textBody.getRow()<<','<<textBody.getCol()<<')';
-//                qDebug()<<"the block end is: "<<'('<<r2<<','<<c2<<')';
+                 qDebug()<<"bs before flush:tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
+                 qDebug()<<"bs before flush:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
+                 flush(); 
+                 qDebug()<<"bs after flush:tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
+                 qDebug()<<"bs after flush:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
             }else if (keyEvent->key() == Qt::Key_Delete){
                 if (tcursor.hasSelection()){//已做块选择
                   setTwoEnd(r2,c2);
@@ -321,9 +343,21 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                textBody.insertStr(tem);
                flush();
             }
-            else if (keyEvent->key()<=int(Qt::Key_9)&&keyEvent->key()>=int(Qt::Key_0)){
+            else if (keyEvent->key()<=int(Qt::Key_QuoteLeft)&&keyEvent->key()>=int(Qt::Key_BracketLeft)){
                 std::string tem;
-                tem.push_back(char(int(keyEvent->key())-int(Qt::Key_0)+int('0')));
+                tem.push_back(char(int(keyEvent->key())-int(Qt::Key_BracketLeft)+int('[')));
+                textBody.insertStr(tem);
+                flush();
+            }
+            else if (keyEvent->key()<=int(Qt::Key_AsciiTilde)&&keyEvent->key()>=int(Qt::Key_BraceLeft)){
+                std::string tem;
+                tem.push_back(char(int(keyEvent->key())-int(Qt::Key_BraceLeft)+int('{')));
+                textBody.insertStr(tem);
+                flush();
+            }
+            else if (keyEvent->key()<=int(Qt::Key_At)&&keyEvent->key()>=int(Qt::Key_Space)){
+                std::string tem;
+                tem.push_back(char(int(keyEvent->key())-int(Qt::Key_Space)+int(' ')));
                 textBody.insertStr(tem);
                 flush();
             }
@@ -368,6 +402,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 //                return true;
 //        }
         else {
+            tcursor=textEdit->textCursor();
+            textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
+            qDebug()<<"else:tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
+            qDebug()<<"else:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
             return QMainWindow::eventFilter(obj, event);
         }
     } else {

@@ -36,6 +36,8 @@ private slots:
 
     void on_actionsave_triggered();
 
+    //void mouseCursorChanged();
+
 private:
 //    Ui::MainWindow *ui; 尝试去掉namespace ui
     QTextEdit *textEdit;
