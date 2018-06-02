@@ -1,7 +1,7 @@
 #include "back.h"
 searchResult::searchResult()
 {
-    Number=0;
+//     Number=0;
     nowINDEX=1;
     ignoreCap=false;
 }
@@ -14,7 +14,7 @@ searchResult::searchResult(myTextEdit* TX,std::string TF,bool IC)
 {
     ignoreCap=IC;
     TEXT=TX;
-    Number=0;
+//     Number=0;
     nowINDEX=1;
     toFind=TF;
     allResults.clear();
