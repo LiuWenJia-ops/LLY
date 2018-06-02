@@ -21,7 +21,7 @@ public:
     searchResult(myTextEdit* TEXT,std::string toFind,bool IC);
     ~searchResult();
     int getNumber(void){
-        return Number;
+        return allResults.size();
     }
     int* getSpecificOne(int INDEX){
         return allResults.at(INDEX);
@@ -34,7 +34,7 @@ public:
 private:
     void search(void);
     std::string toFind;
-    int Number;
+//     int Number;
     myTextEdit* TEXT;
     std::vector<int*> allResults;//[n][3]
 }searchResult;
