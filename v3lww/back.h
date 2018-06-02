@@ -6,13 +6,38 @@
 #include <string>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
 #define CTYPE char
 //using namespace std;
 class lineheAD;
 class temText;
 class myTextEdit;
+class searchResult;
 
-
+typedef class searchResult
+{
+public:
+    searchResult();
+    searchResult(myTextEdit* TEXT,std::string toFind,bool IC);
+    ~searchResult();
+    int getNumber(void){
+        return Number;
+    }
+    int* getSpecificOne(int INDEX){
+        return allResults.at(INDEX);
+    }
+    int nowINDEX;
+    bool ignoreCap;
+    void printALL(void);
+    void getNextVal(std::string substr,int* next);
+    int Index_KMP(std::string S,std::string T,int pos,const int* const next, bool ignCap);
+private:
+    void search(void);
+    std::string toFind;
+    int Number;
+    myTextEdit* TEXT;
+    std::vector<int*> allResults;//[n][3]
+}searchResult;
 //-------------------------------------------
 typedef class lineheAD//行链表，双向链表
 {
@@ -77,7 +102,7 @@ public:
     void setNowLine(lineheAD* lp){nowLine=lp;}
     void setAxis(int tR,int tC);//更改坐标，并修改nowline指针
     lineheAD* axisToPtr(int row);//由行数修改指针
-
+    //TODO: txt space problem
     void insertStr(std::string str);//需要先移动光标，插入字符串,包含判断换行，结束后光标在插入块的后面
     void delFULL(void);// 删库
     void delNL(int type);//清空1/删除10当前行；若删除，则行坐标和指针-1

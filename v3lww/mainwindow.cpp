@@ -7,24 +7,21 @@
 
 #include "back.h"
 //---------------------------------------------------
-myTextEdit textBody;
-//char * addr;  char*会在open之后被释放
-std::string addr;
-QTextCursor tcursor;
-bool isUP=false;
-bool flushFlag=1;
+
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 {
     //initialization
     setWindowTitle(tr("Miniword"));
     setGeometry(200,200,800,600);
+
     textEdit = new QTextEdit();
     textEdit->setFont(QFont("Consolas", 20));
     setCentralWidget(textEdit);
     textEdit->installEventFilter(this);
     textBody.getAxis();
-    //on_actionnew_triggered();
+    findWin=new FindWindow(this,&textBody);
+    //findWin->hide();
     //---------------------------------------------创建菜单栏----------------------------------------
     //定义openAction
     openAction =new QAction(tr("open file"),this);
@@ -41,9 +38,21 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     newAction->setShortcut(QKeySequence::New);
     newAction->setStatusTip(tr("Start a new file"));
     connect(newAction,&QAction::triggered,this,&MainWindow::on_actionnew_triggered);
-   
+    //定义findAction
+    findAction =new QAction(tr("find string"),this);
+    findAction->setShortcut(QKeySequence::Find);
+    findAction->setStatusTip(tr("Find"));
+    connect(findAction,&QAction::triggered,this,&MainWindow::on_actionfind_triggered);
+    // //定义replaceAction
+    // replaceAction =replace QAction(tr("replace a string"),this);
+    // replaceAction->setShortcut(QKeySequence::Replace);
+    // replaceAction->setStatusTip(tr("Replace"));
+    // connect(replaceAction,&QAction::triggered,this,&MainWindow::on_actionreplace_triggered);
+
+
     //添加QAction到菜单栏
     QMenu * file=menuBar()->addMenu(tr("&File Operation"));
+    QMenu * edit=menuBar()->addMenu(tr("&Text Operation"));
     QStatusBar * status=statusBar();
     //添加open
     file->addAction(openAction);
@@ -54,27 +63,25 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     //添加new
     file->addAction(newAction);
     status->addAction(newAction);
-
-    //connect(textEdit,SIGNAL(cursorPositionChanged()),this,SLOT());
-    //connect(textEdit,&MyEvent::mousePressEvent,this,&MainWindow::mouseCursorChanged);
-
-
+    
+    //添加find
+    edit->addAction(findAction);
+    status->addAction(findAction);
+//    //添加replace
+//    edit->addAction(replaceAction);
+//    status->addAction(replaceAction);
 
     //---------------------------------------------添加显示控件----------------------------------------
 //    label
 }
 
-//void MainWindow::mouseCursorChanged()
-//{
-//    tcursor=this->textEdit->textCursor();
-//    textBody.setAxis(tcursor.blockNumber()+1,tcursor.position() - tcursor.block().position()+1);
-//}
 
 MainWindow::~MainWindow()
 {
 }
 //-------------------------------------------------
-//-------------------------------------------------
+
+//---------------------file operation slots----------------------------
 void MainWindow::on_actionopen_triggered()
 {
     if(!addr.empty()){//已经打开过一份
@@ -178,13 +185,19 @@ void MainWindow::on_actionsave_triggered()
         }
     buf.close();
 }
-
-
-
-void MainWindow::on_textEdit_textChanged()
-{
-
+//---------------------search slots----------------------------
+void MainWindow::on_actionfind_triggered()
+{    
+    qDebug()<<"FINDTRIGGERED:start a child window";
+    findWin->show();
+    qDebug()<<"FINDTRIGGERED:show a child window";
 }
+
+//void MainWindow::on_actionreplace_triggered()
+//{
+    
+//}
+
 
 //---------------------------------------------textEdit----------------------------------------
 void MainWindow::correctEditCursor(int row,int col)
@@ -205,7 +218,6 @@ void MainWindow::setTwoEnd(int & r,int & c){//TOTEST:确认结束点是否正确
     int end = cursor.selectionEnd();
     if(!cursor.hasSelection())
         return; // No selection available
-
     cursor.setPosition(start);
     textBody.setAxis(cursor.blockNumber()+1,cursor.position() - cursor.block().position()+1);
     cursor.setPosition(end, QTextCursor::KeepAnchor);
@@ -229,12 +241,9 @@ void MainWindow::flush(){//TESTDONE: flush后必须矫正坐标
 //---------------------------------------------事件过滤器----------------------------------------
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    MyEvent myEvent;
     int r2,c2,click=0;
     if (obj == textEdit) {
-        qDebug()<<"Event:"<<event;
-//        qDebug()<<"event start:tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
-//        qDebug()<<"event start:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
+       // qDebug()<<"Event:"<<event;
         if (tcursor.hasSelection()){
             qDebug()<<"detect Selection";
         }

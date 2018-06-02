@@ -1,4 +1,92 @@
 #include "back.h"
+searchResult::searchResult()
+{
+    Number=0;
+    nowINDEX=1;
+    ignoreCap=false;
+}
+searchResult::~searchResult()
+{
+    for(int i=0;i<allResults.size();i++)
+        delete allResults.at(i);
+}
+searchResult::searchResult(myTextEdit* TX,std::string TF,bool IC)
+{
+    ignoreCap=IC;
+    TEXT=TX;
+    Number=0;
+    nowINDEX=1;
+    toFind=TF;
+    allResults.clear();
+    search();
+}
+void searchResult::printALL(void)
+{
+    for(int i=0;i<allResults.size();i++){
+        std::cout<<allResults.at(i)[0]
+                <<':'<<allResults.at(i)[1]
+               <<','<<allResults.at(i)[2]
+              <<std::endl;
+    }
+}
+void searchResult::search()
+{
+    // int oR=TEXT->getRow(),oC=TEXT->getCol();
+    int lineNumber=1,c1,c2,temp;
+    lineheAD * dealingLine=TEXT->getFirstLine();
+    int * nextV=new int [toFind.size()];
+    int* tpARY;
+    getNextVal(toFind,nextV);
+    std::string S;
+    while(dealingLine!=nullptr){
+        c1=1;c2=1;
+        S=TEXT->copyBlock(lineNumber,1,lineNumber,dealingLine->getSize()+1);
+        while(c1+toFind.size()-1<=S.size()){
+            c1=Index_KMP(S,toFind,c2,nextV,this->ignoreCap);
+            if(c1<0)
+                break;
+            c2=c1+toFind.size();
+            tpARY=new int[3];tpARY[0]=lineNumber;tpARY[1]=c1;tpARY[2]=c2;
+            allResults.push_back(tpARY);
+        }
+        lineNumber++;
+        dealingLine=dealingLine->getNext();
+    }
+}
+void searchResult::getNextVal(std::string substr,int* next){
+    substr="#"+substr;
+    unsigned int i=1,j=0;
+    next[0]=-1;next[1]=0;//next[0]废弃
+    while(i<substr.length()-1){
+		if(j==0||substr.at(i)==substr.at(j)){
+			++i;++j;
+			next[i]=j;
+		}else
+			j=next[j];
+	}
+}
+int searchResult::Index_KMP(std::string S,std::string T,int pos,const int* const next, bool ignCap){
+    S="#"+S;
+    T="#"+T;
+    //TODO: 忽略大小写
+    unsigned int i= pos,j=1;//1<=pos<=S.size()
+	while(i<=S.length()-1&&j<=T.length()-1){
+        if((!ignCap)&&
+                (j==0 || S.at(i)==T.at(j))){
+			i++;
+			j++;
+        }else if(ignCap&&(j==0
+                          ||toupper(S.at(i))==toupper(T.at(j)))){
+            i++;
+            j++;
+        }else
+			j=next[j];
+	}
+    if(j>T.length()-1)
+        return i-T.length()+1;
+	else return -1;
+}
+//-------------------------------------------------
 lineheAD::lineheAD()
 {
     this->pre=nullptr;
