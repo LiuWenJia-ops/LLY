@@ -126,11 +126,17 @@ void MainWindow::on_actionopen_triggered()
             whl.append(media);whl.append("\n");
         }
         textBody.insertStr(whl);
-        textBody.setAxis(1,12);//????
+       // textBody.setAxis(1,12);//???? for test
         textBody.printFULL();
         //std::cout<<addr<<std::endl;
         tcursor=textEdit->textCursor();//设置光标
         buf.close();
+        //--------test replace-----------
+        // searchResult* sr=new searchResult(&textBody,"--",true);
+        // sr->printALL();
+        // sr->replace(3,"#######");
+        // flush();
+        // delete sr;
      }
 }
 

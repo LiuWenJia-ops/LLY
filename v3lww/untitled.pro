@@ -27,12 +27,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     back.cpp \
-    findwindow.cpp
+    findwindow.cpp \
+    repalcewindow.cpp
 
 HEADERS += \
         mainwindow.h \
     back.h \
-    findwindow.h
+    findwindow.h \
+    repalcewindow.h
 
 FORMS += \
         mainwindow.ui

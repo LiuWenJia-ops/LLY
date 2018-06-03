@@ -24,19 +24,20 @@ public:
         return allResults.size();
     }
     int* getSpecificOne(int INDEX){
-        return allResults.at(INDEX);
+        return allResults.at(INDEX-1);
     }
     int nowINDEX;
     bool ignoreCap;
+    void replace(int N,std::string newstr);
     void printALL(void);
-    void getNextVal(std::string substr,int* next);
-    int Index_KMP(std::string S,std::string T,int pos,const int* const next, bool ignCap);
 private:
     void search(void);
+    void getNextVal(std::string substr,int* next);
+    int Index_KMP(std::string S,std::string T,int pos,const int* const next, bool ignCap);
     std::string toFind;
-//     int Number;
+//    int Number;
     myTextEdit* TEXT;
-    std::vector<int*> allResults;//[n][3]
+    std::vector<int*> allResults;//[n][3],格式 行号、C1、C2
 }searchResult;
 //-------------------------------------------
 typedef class lineheAD//行链表，双向链表

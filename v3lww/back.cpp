@@ -1,7 +1,6 @@
 #include "back.h"
 searchResult::searchResult()
 {
-//     Number=0;
     nowINDEX=1;
     ignoreCap=false;
 }
@@ -14,14 +13,32 @@ searchResult::searchResult(myTextEdit* TX,std::string TF,bool IC)
 {
     ignoreCap=IC;
     TEXT=TX;
-//     Number=0;
     nowINDEX=1;
     toFind=TF;
     allResults.clear();
     search();
 }
+void searchResult::replace(int N,std::string newstr)
+{
+    if(newstr==toFind)
+        return;
+    int* dealing=allResults.at(N-1);
+    TEXT->setAxis(dealing[0],dealing[1]);
+    TEXT->delBlock(dealing[0],dealing[2]);
+    TEXT->insertStr(newstr);
+    //nowINDEX移动到上一个？ 准备删掉该参数
+    // erase the Nth element
+    allResults.erase (allResults.begin()+N-1);
+    std::cout<<"repace the NO."<<N<<" \""<<toFind<<"\""<<" by"<<"\""<<newstr<<"\""<<std::endl;
+
+}
 void searchResult::printALL(void)
 {
+    if(allResults.size()==0){
+        std::cout<<"no results of \""<<toFind<<"\""<<std::endl;
+        return;
+    }
+    std::cout<<"all results of \""<<toFind<<"\" is:"<<std::endl;
     for(int i=0;i<allResults.size();i++){
         std::cout<<allResults.at(i)[0]
                 <<':'<<allResults.at(i)[1]
