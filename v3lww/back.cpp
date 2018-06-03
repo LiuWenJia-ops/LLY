@@ -28,17 +28,24 @@ void searchResult::replace(int N,std::string newstr)
     TEXT->insertStr(newstr);
     //nowINDEX移动到上一个？ 准备删掉该参数
     // erase the Nth element
-    allResults.erase (allResults.begin()+N-1);
+//    allResults.erase (allResults.begin()+N-1);
+    std::vector<int*>::iterator itor2;
+    for(std::vector<int*>::iterator iter=allResults.begin(); iter!=allResults.end(); ){
+       itor2=iter;
+       allResults.erase(itor2);
+       iter++ ;
+    }
+    search();
     std::cout<<"repace the NO."<<N<<" \""<<toFind<<"\""<<" by"<<"\""<<newstr<<"\""<<std::endl;
 
 }
 void searchResult::printALL(void)
 {
     if(allResults.size()==0){
-        std::cout<<"no results of \""<<toFind<<"\""<<std::endl;
+        std::cout<<"no resultresults of \""<<toFind<<"\""<<std::endl;
         return;
     }
-    std::cout<<"all results of \""<<toFind<<"\" is:"<<std::endl;
+//    std::cout<<"all results of \""<<toFind<<"\" is:"<<std::endl;
     for(int i=0;i<allResults.size();i++){
         std::cout<<allResults.at(i)[0]
                 <<':'<<allResults.at(i)[1]
@@ -69,6 +76,8 @@ void searchResult::search()
         lineNumber++;
         dealingLine=dealingLine->getNext();
     }
+    std::cout<<"the new axis of the search results are:"<<std::endl;
+    printALL();
 }
 void searchResult::getNextVal(std::string substr,int* next){
     substr="#"+substr;
