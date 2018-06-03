@@ -12,7 +12,7 @@
 #include <QTextCursor>
 #include <QTextBlock>
 #include "findwindow.h"
-
+#include "replacewindow.h"
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -38,7 +38,7 @@ private slots:
 
     void on_actionfind_triggered();
 
-//    void on_actionreplace_triggered();
+    void on_actionreplace_triggered();
 private:
 //    Ui::MainWindow *ui; 尝试去掉namespace ui
     QTextEdit *textEdit;
@@ -46,9 +46,10 @@ private:
     QAction * saveAction;
     QAction * newAction;
     QAction * findAction;
-//    QAction * replaceAction;
+    QAction * replaceAction;
 
     FindWindow * findWin;
+    ReplaceWindow * replaceWin;
     //=====================
     myTextEdit textBody;
     std::string addr;
@@ -56,14 +57,5 @@ private:
     bool isUP=false;
     bool flushFlag=1;
 };
-
-// class FindWindow : public   QWidget
-// {
-//     Q_OBJECT
-// public:
-//     FindWindow();
-//     ~FindWindow();
-
-// }
 
 #endif // MAINWINDOW_H

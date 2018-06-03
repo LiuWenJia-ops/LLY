@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     textEdit->installEventFilter(this);
     textBody.getAxis();
     findWin=new FindWindow(this,&textBody);
-    //findWin->hide();
+    replaceWin=new ReplaceWindow(this,&textBody);
     //---------------------------------------------创建菜单栏----------------------------------------
     //定义openAction
     openAction =new QAction(tr("open file"),this);
@@ -43,11 +43,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     findAction->setShortcut(QKeySequence::Find);
     findAction->setStatusTip(tr("Find"));
     connect(findAction,&QAction::triggered,this,&MainWindow::on_actionfind_triggered);
-    // //定义replaceAction
-    // replaceAction =replace QAction(tr("replace a string"),this);
-    // replaceAction->setShortcut(QKeySequence::Replace);
-    // replaceAction->setStatusTip(tr("Replace"));
-    // connect(replaceAction,&QAction::triggered,this,&MainWindow::on_actionreplace_triggered);
+     //定义replaceAction
+     replaceAction =new QAction(tr("replace a string"),this);
+     replaceAction->setShortcut(QKeySequence::Replace);
+     replaceAction->setStatusTip(tr("Replace"));
+     connect(replaceAction,&QAction::triggered,this,&MainWindow::on_actionreplace_triggered);
 
 
     //添加QAction到菜单栏
@@ -67,9 +67,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     //添加find
     edit->addAction(findAction);
     status->addAction(findAction);
-//    //添加replace
-//    edit->addAction(replaceAction);
-//    status->addAction(replaceAction);
+    //添加replace
+    edit->addAction(replaceAction);
+    status->addAction(replaceAction);
 
     //---------------------------------------------添加显示控件----------------------------------------
 //    label
@@ -199,10 +199,12 @@ void MainWindow::on_actionfind_triggered()
     qDebug()<<"FINDTRIGGERED:show a child window";
 }
 
-//void MainWindow::on_actionreplace_triggered()
-//{
-    
-//}
+void MainWindow::on_actionreplace_triggered()
+{
+    qDebug()<<"FINDTRIGGERED:start a child window";
+    replaceWin->show();
+    qDebug()<<"FINDTRIGGERED:show a child window";
+}
 
 
 //---------------------------------------------textEdit----------------------------------------
