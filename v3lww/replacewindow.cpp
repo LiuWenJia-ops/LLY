@@ -7,6 +7,7 @@ ReplaceWindow::ReplaceWindow(QWidget* parent,myTextEdit * textBodyIn):
     mode=1;//默认不区分大小写
     hasResult=false;
     nowResult=1;
+    renewFlag=0;
     this->setWindowTitle(tr("Replace"));
     this->setGeometry(100,100,400,300);
     //------------------参数初始化------------
@@ -18,7 +19,8 @@ ReplaceWindow::ReplaceWindow(QWidget* parent,myTextEdit * textBodyIn):
     QComboBox *findComboBox = new QComboBox(this);
     findComboBox->addItem(tr("Ingnore C"));
     findComboBox->addItem(tr("Don't ingnore C"));
-    QPushButton *btn= new QPushButton(tr("Find and Replace next"), this);
+    QPushButton *btn1= new QPushButton(tr("Find next"), this);
+    QPushButton *btn2= new QPushButton(tr("Replace"), this);
 
     QVBoxLayout *layout= new QVBoxLayout(this);
     layout->addWidget(findLineLabel);
@@ -27,21 +29,41 @@ ReplaceWindow::ReplaceWindow(QWidget* parent,myTextEdit * textBodyIn):
     layout->addWidget(replaceLineEdit);
     layout->addWidget(findLabel);
     layout->addWidget(findComboBox);
-    layout->addWidget(btn);
+    layout->addWidget(btn1);
+    layout->addWidget(btn2);
     setLayout(layout);
     //---------------绘制完成-----------------
     connect(findComboBox, SIGNAL(activated(int)),this, SLOT(modeChanged(int)));
-    connect(btn, &QPushButton::pressed, this, &ReplaceWindow::showFindText);
+    connect(btn1, &QPushButton::pressed, this, &ReplaceWindow::showFindText);
+    connect(btn2, &QPushButton::pressed, this, &ReplaceWindow::replaceFindText);
     connect(findLineEdit,SIGNAL(textChanged(QString)),this,SLOT(renewSearchResult()));
 }
 
 ReplaceWindow::~ReplaceWindow()
 {
 }
-void ReplaceWindow::renewSearchResult(){//文本内容一旦变化,结果参数也变化
+void ReplaceWindow::renewSearchResult()
+{//文本内容一旦变化,结果参数也变化
     hasResult=false;
     nowResult=1;
     qDebug()<<"renew hasflag:"<<int(hasResult);
+}
+
+void ReplaceWindow::replaceFindText()//FIXME:如果replace多次的话，因为nowresult数字不会变，而number会变，从而会自动往下走。。。需要解决重复replace的问题
+{
+    qDebug()<<"in replace";
+    if(!hasResult)//TODO:没结果不能替换
+        return;
+    if(renewFlag){//防止重复replace自动前进
+        QString rpstr=replaceLineEdit->text();
+        std::string putstr=rpstr.toLocal8Bit().constData();//QString->string
+        qDebug()<<"replace the"<<nowResult<<"result";
+        qDebug()<<"put in string:"<<rpstr;
+        resultPtr->replace(nowResult,putstr);
+        flush(putstr);
+        number--;
+        renewFlag=0;
+    }
 }
 void ReplaceWindow::showFindText()
 {
@@ -64,25 +86,19 @@ void ReplaceWindow::showFindText()
             return;
         }
        //------------------有结果---------------------
-        QString rpstr=replaceLineEdit->text();
-        str=rpstr.toLocal8Bit().constData();//QString->string
         nowResult=1;
         hasResult=true;
 
         mwPtr=(MainWindow *)parentWidget();
         mwTextEditPtr=mwPtr->getTextEdit();//指向父窗口private成员textedit
         temCursor=mwTextEditPtr->textCursor();
-
-        resultPtr->replace(1,str);
-        flush();
-
-        nowResult++;//循环显示
+        correctEditCursor(nowResult);
     }else{
          qDebug()<<"nowresult:"<<nowResult;
          if(nowResult<=number){//还没替换完
-            resultPtr->replace(1,str);//每次都是替换第一个？？？
-            flush();
-            nowResult++;//循环显示
+            nowResult=nowResult%number+1;//循环显示
+            qDebug()<<"nowresult:"<<nowResult;
+            correctEditCursor(nowResult);
         }else{
             int ret = QMessageBox::warning(this, tr("REPLACED ALL!"),
                                            tr("All the strings have been replaced."),
@@ -118,19 +134,28 @@ int  ReplaceWindow::getAbsadd(int rowCount, int colCount)
     return add;
 }
 
-void ReplaceWindow::correctEditCursor(int * resultSet)
+void ReplaceWindow::correctEditCursor(std::string PUTin)
 {
-    qDebug()<<"row in replace:"<<resultSet[0];
-    qDebug()<<"col in replace:"<<resultSet[1];
-    textTBFptr->setAxis(textTBFptr->getRow(),textTBFptr->getCol()-str.size());//插入后col要向前退
+        textTBFptr->setAxis(textTBFptr->getRow(),textTBFptr->getCol()-PUTin.size());//插入后col要向前退
+        int absadd=getAbsadd(textTBFptr->getRow(),textTBFptr->getCol());
+        temCursor.setPosition(absadd);//TextEdit里的光标
+        temCursor.setPosition(absadd+PUTin.size(),QTextCursor::KeepAnchor);
+        //FIXME:需不需要比较memory cursor 和显示的cursor啊???
+        mwTextEditPtr->setTextCursor(temCursor);//显示更新
+}
+void ReplaceWindow::correctEditCursor(int now)
+{
+    renewFlag=1;//向下搜索后才有flag给replace
+    int * nowWhere=resultPtr->getSpecificOne(now);
+    textTBFptr->setAxis(nowWhere[0],nowWhere[1]);
     int absadd=getAbsadd(textTBFptr->getRow(),textTBFptr->getCol());
     temCursor.setPosition(absadd);//TextEdit里的光标
-    temCursor.setPosition(absadd+str.size(),QTextCursor::KeepAnchor);
+    temCursor.setPosition(absadd+str.size(),QTextCursor::KeepAnchor);//str总是存储最新的目标string
     //FIXME:需不需要比较memory cursor 和显示的cursor啊???
     mwTextEditPtr->setTextCursor(temCursor);//显示更新
 }
-
-void ReplaceWindow::flush(){//TESTDONE: flush后必须矫正坐标
+void ReplaceWindow::flush(std::string putin)
+{//TESTDONE: flush后必须矫正坐标
     QString qstr;
     mwTextEditPtr->clear();
     lineheAD *tem=textTBFptr->getFirstLine();
@@ -142,6 +167,5 @@ void ReplaceWindow::flush(){//TESTDONE: flush后必须矫正坐标
         tem=tem->getNext();
     }
     qDebug()<<"---------------------";
-    int * nowWhere=resultPtr->getSpecificOne(1);
-    correctEditCursor(nowWhere);
+    correctEditCursor(putin);
 }
