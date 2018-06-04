@@ -41,6 +41,7 @@ ReplaceWindow::ReplaceWindow(QWidget* parent,myTextEdit * textBodyIn):
 
 ReplaceWindow::~ReplaceWindow()
 {
+    delete resultPtr;
 }
 void ReplaceWindow::renewSearchResult()
 {//文本内容一旦变化,结果参数也变化
@@ -60,8 +61,13 @@ void ReplaceWindow::replaceFindText()//FIXME:如果replace多次的话，因为n
         qDebug()<<"replace the"<<nowResult<<"result";
         qDebug()<<"put in string:"<<rpstr;
         resultPtr->replace(nowResult,putstr);
+        qDebug()<<"back from replace";
         flush(putstr);
-        number--;
+        if(nowResult==1||nowResult==number)
+            nowResult=number-1;
+        else
+            nowResult--;
+        number=resultPtr->getNumber();
         renewFlag=0;
     }
 }
@@ -95,7 +101,8 @@ void ReplaceWindow::showFindText()
         correctEditCursor(nowResult);
     }else{
          qDebug()<<"nowresult:"<<nowResult;
-         if(nowResult<=number){//还没替换完
+         if(number&&nowResult<=number){//还没替换完
+            qDebug()<<"nownumber:"<<number;
             nowResult=nowResult%number+1;//循环显示
             qDebug()<<"nowresult:"<<nowResult;
             correctEditCursor(nowResult);
@@ -140,7 +147,6 @@ void ReplaceWindow::correctEditCursor(std::string PUTin)
         int absadd=getAbsadd(textTBFptr->getRow(),textTBFptr->getCol());
         temCursor.setPosition(absadd);//TextEdit里的光标
         temCursor.setPosition(absadd+PUTin.size(),QTextCursor::KeepAnchor);
-        //FIXME:需不需要比较memory cursor 和显示的cursor啊???
         mwTextEditPtr->setTextCursor(temCursor);//显示更新
 }
 void ReplaceWindow::correctEditCursor(int now)
@@ -151,7 +157,6 @@ void ReplaceWindow::correctEditCursor(int now)
     int absadd=getAbsadd(textTBFptr->getRow(),textTBFptr->getCol());
     temCursor.setPosition(absadd);//TextEdit里的光标
     temCursor.setPosition(absadd+str.size(),QTextCursor::KeepAnchor);//str总是存储最新的目标string
-    //FIXME:需不需要比较memory cursor 和显示的cursor啊???
     mwTextEditPtr->setTextCursor(temCursor);//显示更新
 }
 void ReplaceWindow::flush(std::string putin)

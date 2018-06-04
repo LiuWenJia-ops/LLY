@@ -1,0 +1,23 @@
+---------------------
+start hasflag: 1
+nowresult: 1
+nownumber: 1
+nowresult: 1
+in replace
+axis after delete a block: (4,5)
+the new axis of the search results are:
+no resultresults of "er"
+repace the NO.1 "er" by"ee"
+replace the 1 result
+put in string: "ee"
+back from replace
+---check text from memory---
+"wgiibwryfbwee"
+"eebtrhe"
+"btrheeee"
+"sbaeee"
+""
+---------------------
+start hasflag: 1
+nowresult: 0
+nownumber: 0

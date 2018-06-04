@@ -26,7 +26,7 @@ void searchResult::replace(int N,std::string newstr)
     TEXT->setAxis(dealing[0],dealing[1]);
     TEXT->delBlock(dealing[0],dealing[2]);
     TEXT->insertStr(newstr);
-    allResults.clear()
+    allResults.clear();
     search();
     std::cout<<"repace the NO."<<N<<" \""<<toFind<<"\""<<" by"<<"\""<<newstr<<"\""<<std::endl;
 }
@@ -61,7 +61,8 @@ void searchResult::search()
             if(c1<0)
                 break;
             c2=c1+toFind.size();
-            tpARY=new int[3];tpARY[0]=lineNumber;tpARY[1]=c1;tpARY[2]=c2;
+            tpARY=new int[3];
+            tpARY[0]=lineNumber;tpARY[1]=c1;tpARY[2]=c2;
             allResults.push_back(tpARY);
         }
         lineNumber++;
