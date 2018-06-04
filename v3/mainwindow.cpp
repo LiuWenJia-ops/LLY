@@ -7,25 +7,21 @@
 
 #include "back.h"
 //---------------------------------------------------
-myTextEdit textBody;
-//char * addr;  char*会在open之后被释放
-std::string addr;
-QTextCursor tcursor;
-bool isUP=false;
-bool flushFlag=1;
-bool hasSelection;
+
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
 {
     //initialization
     setWindowTitle(tr("Miniword"));
     setGeometry(200,200,800,600);
+
     textEdit = new QTextEdit();
-    textEdit->setFont(QFont("Consolas", 20));
+    textEdit->setFont(QFont("Consolas", 15));
     setCentralWidget(textEdit);
     textEdit->installEventFilter(this);
     textBody.getAxis();
-    //on_actionnew_triggered();
+    findWin=new FindWindow(this,&textBody);
+    //findWin->hide();
     //---------------------------------------------创建菜单栏----------------------------------------
     //定义openAction
     openAction =new QAction(tr("open file"),this);
@@ -42,9 +38,38 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     newAction->setShortcut(QKeySequence::New);
     newAction->setStatusTip(tr("Start a new file"));
     connect(newAction,&QAction::triggered,this,&MainWindow::on_actionnew_triggered);
-   
+    //定义findAction
+    findAction =new QAction(tr("find string"),this);
+    findAction->setShortcut(QKeySequence::Find);
+    findAction->setStatusTip(tr("Find"));
+    connect(findAction,&QAction::triggered,this,&MainWindow::on_actionfind_triggered);
+    // //定义replaceAction
+    // replaceAction =replace QAction(tr("replace a string"),this);
+    // replaceAction->setShortcut(QKeySequence::Replace);
+    // replaceAction->setStatusTip(tr("Replace"));
+    // connect(replaceAction,&QAction::triggered,this,&MainWindow::on_actionreplace_triggered);
+
+    //实际在eventfilter中实现shortcut
+    //定义CutAction
+    cutAction =new QAction(tr("cut"),this);
+    cutAction->setShortcut(QKeySequence::Cut);
+    cutAction->setStatusTip(tr("Cut"));
+    connect(cutAction,&QAction::triggered,this,&MainWindow::on_actioncut_triggered);
+    //connect(cutAction,SIGNAL(cut()),this,SLOT(on_actioncut_triggered()));
+    //定义PasteAction
+    pasteAction =new QAction(tr("paste"),this);
+    pasteAction->setShortcut(QKeySequence::Paste);
+    pasteAction->setStatusTip(tr("Paste"));
+    connect(pasteAction,&QAction::triggered,this,&MainWindow::on_actionpaste_triggered);
+    //定义CopyAction
+    copyAction =new QAction(tr("copy"),this);
+    copyAction->setShortcut(QKeySequence::Copy);
+    copyAction->setStatusTip(tr("Copy"));
+    connect(copyAction,&QAction::triggered,this,&MainWindow::on_actioncopy_triggered);
+
     //添加QAction到菜单栏
     QMenu * file=menuBar()->addMenu(tr("&File Operation"));
+    QMenu * edit=menuBar()->addMenu(tr("&Text Operation"));
     QStatusBar * status=statusBar();
     //添加open
     file->addAction(openAction);
@@ -56,20 +81,39 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     file->addAction(newAction);
     status->addAction(newAction);
 
+    //添加cut
+    edit->addAction(cutAction);
+    status->addAction(cutAction);
+    //添加paste
+    edit->addAction(pasteAction);
+    status->addAction(pasteAction);
+    //添加copy
+    edit->addAction(copyAction);
+    status->addAction(copyAction);
+    //添加find
+    edit->addAction(findAction);
+    status->addAction(findAction);
+
+
+//    //添加replace
+//    edit->addAction(replaceAction);
+//    status->addAction(replaceAction);
+
     //---------------------------------------------添加显示控件----------------------------------------
 //    label
-
     position = new QLabel(this);
     status->addPermanentWidget(position);
     connect(textEdit,SIGNAL(cursorPositionChanged()),this,SLOT(ShowTextRowCol()));
 
 }
 
+
 MainWindow::~MainWindow()
 {
 }
 //-------------------------------------------------
-//-------------------------------------------------
+
+//---------------------file operation slots----------------------------
 void MainWindow::on_actionopen_triggered()
 {
     if(!addr.empty()){//已经打开过一份
@@ -114,11 +158,17 @@ void MainWindow::on_actionopen_triggered()
             whl.append(media);whl.append("\n");
         }
         textBody.insertStr(whl);
-        textBody.setAxis(1,12);//????
+       // textBody.setAxis(1,12);//???? for test
         textBody.printFULL();
         //std::cout<<addr<<std::endl;
         tcursor=textEdit->textCursor();//设置光标
         buf.close();
+        //--------test replace-----------
+        // searchResult* sr=new searchResult(&textBody,"--",true);
+        // sr->printALL();
+        // sr->replace(3,"#######");
+        // flush();
+        // delete sr;
      }
 }
 
@@ -174,21 +224,66 @@ void MainWindow::on_actionsave_triggered()
     buf.close();
 }
 
-
-
-void MainWindow::on_textEdit_textChanged()
+void MainWindow::on_actioncut_triggered()
 {
-
+    QTextCursor cursor = textEdit->textCursor();
+    if (cursor.hasSelection()){
+        int r,c;
+        setTwoEnd(r,c);
+        clipboard = textBody.cutBlock(r,c);
+        QString string = QString::fromStdString(clipboard);
+        qDebug()<<string;
+        flush();
+    }
 }
+void MainWindow::on_actionpaste_triggered()
+{
+    QTextCursor cursor = textEdit->textCursor();
+    if (cursor.hasSelection()){
+        int r,c;
+        setTwoEnd(r,c);
+        textBody.delBlock(r,c);
+    }
+    textBody.insertStr(clipboard);
+    QString string = QString::fromStdString(clipboard);
+    qDebug()<<string;
+    flush();
+}
+void MainWindow::on_actioncopy_triggered()
+{//保持选区
+    QTextCursor cursor = textEdit->textCursor();
+    if (cursor.hasSelection()){
+        int r,c;
+        setTwoEnd(r,c);
+        clipboard = textBody.copyBlock(r,c-1);//解决多拷贝了一位的问题
+        cursor.setPosition(cursor.selectionStart());
+        cursor.setPosition(cursor.selectionEnd(), QTextCursor::KeepAnchor);
+
+        QString string = QString::fromStdString(clipboard);
+        qDebug()<<string;
+        //flush();
+    }
+}
+//---------------------search slots----------------------------
+void MainWindow::on_actionfind_triggered()
+{    
+    qDebug()<<"FINDTRIGGERED:start a child window";
+    findWin->show();
+    qDebug()<<"FINDTRIGGERED:show a child window";
+}
+
+//void MainWindow::on_actionreplace_triggered()
+//{
+    
+//}
+
 //---------------------------------------------Label----------------------------------------
 void MainWindow::ShowTextRowCol()
 {
-    if (!hasSelection)
+    if (!tcursor.hasSelection())
         this->position->setText(tr("Row:%1 Col:%2 | PreTotal:%3").arg(tcursor.blockNumber()+1).arg(tcursor.position()-tcursor.block().position()+1).arg(tcursor.position()));
     else
-        //得到前一状态position
-        //this->position->setText(tr("Row:%1 Col:%2 | Selection:%3").arg(tcursor.blockNumber()+1).arg(tcursor.position()-tcursor.block().position()+1).arg(tcursor.position()));
-        this->position->setText(tr("Row:%1 Col:%2 ").arg(tcursor.blockNumber()+1).arg(tcursor.position()-tcursor.block().position()+1));
+        this->position->setText(tr("Row:%1 Col:%2 | Selection:%3").arg(tcursor.blockNumber()+1).arg(tcursor.position()-tcursor.block().position()+1).arg(tcursor.selectionEnd()-tcursor.selectionStart()));
 }
 //---------------------------------------------textEdit----------------------------------------
 void MainWindow::correctEditCursor(int row,int col)
@@ -209,7 +304,6 @@ void MainWindow::setTwoEnd(int & r,int & c){//TOTEST:确认结束点是否正确
     int end = cursor.selectionEnd();
     if(!cursor.hasSelection())
         return; // No selection available
-
     cursor.setPosition(start);
     textBody.setAxis(cursor.blockNumber()+1,cursor.position() - cursor.block().position()+1);
     cursor.setPosition(end, QTextCursor::KeepAnchor);
@@ -235,14 +329,12 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     int r2,c2;
     if (obj == textEdit) {
-        qDebug()<<"Event:"<<event;
-//        qDebug()<<"event start:tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
-//        qDebug()<<"event start:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
-        if (tcursor.hasSelection()){
-            qDebug()<<"detect Selection";
+       // qDebug()<<"Event:"<<event;
+        if (tcursor.hasSelection())
+            qDebug()<<"detect Selection";/*
             hasSelection=1;
         } else
-            hasSelection=0;
+            hasSelection=0;*/
         //响应按键事件，注意：快捷键Ctr+O和Ctr+S已经加在了菜单栏
         if (event->type() == QEvent::KeyPress) {
             qDebug()<<"detect keyPress Event";
@@ -315,9 +407,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                  if (tcursor.hasSelection()){//已做块选择
                    setTwoEnd(r2,c2);
                    textBody.delBlock(r2,c2);//FIXME:块尾
-                 }else{
+                 }else
                     textBody.delC(1);
-                 }
+
                  qDebug()<<"bs before flush:tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
                  qDebug()<<"bs before flush:axis in cashe AFTER event: "<<textBody.getRow()<<','<<textBody.getCol();
                  flush(); 
@@ -331,11 +423,20 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                     textBody.delC(0);
                 flush();
            }
+            else if (keyEvent->modifiers()==Qt::ControlModifier){
+                if (keyEvent->key()== Qt::Key_X){
+                    this->on_actioncut_triggered();
+                    //emit cut();
+                }else if (keyEvent->key()== Qt::Key_C)
+                    this->on_actioncopy_triggered();
+                else if (keyEvent->key()== Qt::Key_V)
+                        this->on_actionpaste_triggered();
+                return true;
+            }
 //            --------------------键入操作---------------
             else if(keyEvent->key() == Qt::Key_CapsLock){
                 isUP=!isUP;
-            }
-            else if (keyEvent->key()<=int(Qt::Key_Z)&&keyEvent->key()>=int(Qt::Key_A)){//Q:输入字符
+            }else if (keyEvent->key()<=int(Qt::Key_Z)&&keyEvent->key()>=int(Qt::Key_A)){//Q:输入字符
                std::string tem;
                if(isUP)
                    tem.push_back(char(int(keyEvent->key())-int(Qt::Key_A)+int('A')));
@@ -343,26 +444,22 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                    tem.push_back(char(int(keyEvent->key())-int(Qt::Key_A)+int('a')));
                textBody.insertStr(tem);
                flush();
-            }
-            else if (keyEvent->key()<=int(Qt::Key_QuoteLeft)&&keyEvent->key()>=int(Qt::Key_BracketLeft)){
+            }else if (keyEvent->key()<=int(Qt::Key_QuoteLeft)&&keyEvent->key()>=int(Qt::Key_BracketLeft)){
                 std::string tem;
                 tem.push_back(char(int(keyEvent->key())-int(Qt::Key_BracketLeft)+int('[')));
                 textBody.insertStr(tem);
                 flush();
-            }
-            else if (keyEvent->key()<=int(Qt::Key_AsciiTilde)&&keyEvent->key()>=int(Qt::Key_BraceLeft)){
+            }else if (keyEvent->key()<=int(Qt::Key_AsciiTilde)&&keyEvent->key()>=int(Qt::Key_BraceLeft)){
                 std::string tem;
                 tem.push_back(char(int(keyEvent->key())-int(Qt::Key_BraceLeft)+int('{')));
                 textBody.insertStr(tem);
                 flush();
-            }
-            else if (keyEvent->key()<=int(Qt::Key_At)&&keyEvent->key()>=int(Qt::Key_Space)){
+            }else if (keyEvent->key()<=int(Qt::Key_At)&&keyEvent->key()>=int(Qt::Key_Space)){
                 std::string tem;
                 tem.push_back(char(int(keyEvent->key())-int(Qt::Key_Space)+int(' ')));
                 textBody.insertStr(tem);
                 flush();
-            }
-            else if(keyEvent->key()==int(Qt::Key_Return)){
+            }else if(keyEvent->key()==int(Qt::Key_Return)){
                 std::string enTer("\n\n");
                 textBody.insertStr(enTer);
                 flush();
@@ -372,6 +469,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 qDebug()<<"|-------------------------|";
                 qDebug()<<"|undifined keyPress Action|";
                 qDebug()<<"|-------------------------|";
+                return QMainWindow::eventFilter(obj, event);
             }
 
             qDebug()<<"tcursor AFTER event: "<<tcursor.blockNumber()+1<<','<<tcursor.position() - tcursor.block().position()+1;
