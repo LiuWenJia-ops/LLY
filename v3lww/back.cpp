@@ -26,15 +26,7 @@ void searchResult::replace(int N,std::string newstr)
     TEXT->setAxis(dealing[0],dealing[1]);
     TEXT->delBlock(dealing[0],dealing[2]);
     TEXT->insertStr(newstr);
-    //nowINDEX移动到上一个？ 准备删掉该参数
-    // erase the Nth element
-//    allResults.erase (allResults.begin()+N-1);
-    std::vector<int*>::iterator itor2;
-    for(std::vector<int*>::iterator iter=allResults.begin(); iter!=allResults.end(); ){
-       itor2=iter;
-       allResults.erase(itor2);
-       iter++ ;
-    }
+    allResults.clear()
     search();
     std::cout<<"repace the NO."<<N<<" \""<<toFind<<"\""<<" by"<<"\""<<newstr<<"\""<<std::endl;
 }
