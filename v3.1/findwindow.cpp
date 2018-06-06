@@ -2,10 +2,6 @@
 #include "mainwindow.h"
 int getAbsadd(int * relativeAdd,myTextEdit * textTBFptr);
 
-FindWindow::FindWindow(QWidget* parent): QDialog(parent)
-{
-
-}
 FindWindow::FindWindow(QWidget* parent,myTextEdit * textBodyIn):
     QDialog(parent),textTBFptr(textBodyIn)
 {

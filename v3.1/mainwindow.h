@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QLabel>
-//#include <QKeySequence>
 
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -14,6 +13,7 @@
 #include <QTextCursor>
 #include <QTextBlock>
 #include "findwindow.h"
+#include "replacewindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -30,10 +30,6 @@ protected:
     void setTwoEnd(int & r,int & c);
     void flush();
     void correctEditCursor(int row,int col);
-
-//signals:
-//    void cut();
-
 private slots:
 
     void on_actionopen_triggered();
@@ -44,6 +40,8 @@ private slots:
 
     void on_actionfind_triggered();
 
+    void on_actionreplace_triggered();
+
     void on_actioncut_triggered();
 
     void on_actionpaste_triggered();
@@ -52,39 +50,28 @@ private slots:
 
     void ShowTextRowCol();
 
-//    void on_actionreplace_triggered();
 private:
 //    Ui::MainWindow *ui; 尝试去掉namespace ui
     QTextEdit *textEdit;
     QAction * openAction;
     QAction * saveAction;
     QAction * newAction;
-    QAction * findAction;
     QAction * cutAction;
     QAction * pasteAction;
     QAction * copyAction;
+    QAction * findAction;
+    QAction * replaceAction;
     QLabel * position;
-//    QAction * replaceAction;
 
     FindWindow * findWin;
+    ReplaceWindow * replaceWin;
     //=====================
     myTextEdit textBody;
     std::string addr;
-    std::string clipboard;
+    std::string clipboard;//临时剪切板
     QTextCursor tcursor;
     bool isUP=false;
     bool flushFlag=1;
-    //bool hasSelection;
-
 };
-
-// class FindWindow : public   QWidget
-// {
-//     Q_OBJECT
-// public:
-//     FindWindow();
-//     ~FindWindow();
-
-// }
 
 #endif // MAINWINDOW_H

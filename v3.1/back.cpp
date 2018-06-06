@@ -1,7 +1,7 @@
 #include "back.h"
 searchResult::searchResult()
 {
-    nowINDEX=1;
+    //nowINDEX=1;
     ignoreCap=false;
 }
 searchResult::~searchResult()
@@ -13,7 +13,7 @@ searchResult::searchResult(myTextEdit* TX,std::string TF,bool IC)
 {
     ignoreCap=IC;
     TEXT=TX;
-    nowINDEX=1;
+    //nowINDEX=1;
     toFind=TF;
     allResults.clear();
     search();
@@ -37,7 +37,6 @@ void searchResult::replace(int N,std::string newstr)
     }
     search();
     std::cout<<"repace the NO."<<N<<" \""<<toFind<<"\""<<" by"<<"\""<<newstr<<"\""<<std::endl;
-
 }
 void searchResult::printALL(void)
 {

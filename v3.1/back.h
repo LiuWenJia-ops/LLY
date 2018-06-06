@@ -26,9 +26,9 @@ public:
     int* getSpecificOne(int INDEX){
         return allResults.at(INDEX-1);
     }
-    int nowINDEX;
+    // int nowINDEX;
     bool ignoreCap;
-    void replace(int N,std::string newstr);
+    void replace(int N,std::string newstr);//N是第几个搜索结果,newstr是换进去的新串
     void printALL(void);
 private:
     void search(void);
