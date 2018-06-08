@@ -53,8 +53,14 @@ void ReplaceWindow::renewSearchResult()
 void ReplaceWindow::replaceFindText()//FIXME:如果replace多次的话，因为nowresult数字不会变，而number会变，从而会自动往下走。。。需要解决重复replace的问题
 {
     qDebug()<<"in replace";
-    if(!hasResult)//TODO:没结果不能替换
+    if(!hasResult){//TODO:没结果不能替换
+        int ret = QMessageBox::warning(this, tr("FIND FIRST!"),
+                                           tr("Please find something first."),
+                                           QMessageBox::Ok | QMessageBox::Ok
+                                           | QMessageBox::Ok,
+                                           QMessageBox::Ok);
         return;
+    }
     if(renewFlag){//防止重复replace自动前进
         QString rpstr=replaceLineEdit->text();
         std::string putstr=rpstr.toLocal8Bit().constData();//QString->string
@@ -77,6 +83,14 @@ void ReplaceWindow::showFindText()
     if(!hasResult){
         qDebug()<<"first hasflag:"<<int(hasResult);
         QString qstr = findLineEdit->text();//查找内容的
+        if(qstr.isEmpty()){
+            int ret = QMessageBox::warning(this, tr("INPUT WRONG!"),
+                                           tr("Input something please."),
+                                           QMessageBox::Ok | QMessageBox::Ok
+                                           | QMessageBox::Ok,
+                                           QMessageBox::Ok);
+            return;
+        }
         str=qstr.toLocal8Bit().constData();//QString->string
         resultPtr=new searchResult(this->textTBFptr,str,this->mode);
        

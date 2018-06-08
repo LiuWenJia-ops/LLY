@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     textBody.getAxis();
     findWin=new FindWindow(this,&textBody);
     replaceWin=new ReplaceWindow(this,&textBody);
+    textEdit->setAcceptDrops(true);    
+    setAcceptDrops(false);   
     //---------------------------------------------创建菜单栏----------------------------------------
     //定义openAction
     openAction =new QAction(tr("open file"),this);

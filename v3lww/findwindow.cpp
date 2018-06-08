@@ -32,6 +32,7 @@ FindWindow::FindWindow(QWidget* parent,myTextEdit * textBodyIn):
 
 FindWindow::~FindWindow()
 {
+     delete resultPtr;
 }
 void FindWindow::renewSearchResult(){//文本内容一旦变化,结果参数也变化
     hasResult=false;
@@ -44,6 +45,16 @@ void FindWindow::showFindText()
     if(!hasResult){
         qDebug()<<"first hasflag:"<<int(hasResult);
         QString qstr = findLineEdit->text();
+        if(qstr.isEmpty()){
+            int ret = QMessageBox::warning(this, tr("INPUT WRONG!"),
+                                           tr("Input something please."),
+                                           QMessageBox::Ok | QMessageBox::Ok
+                                           | QMessageBox::Ok,
+                                           QMessageBox::Ok);
+             qDebug()<<"FIND:no result";
+            return;
+        }
+
         std::string str=qstr.toLocal8Bit().constData();//QString->string
         resultPtr=new searchResult(this->textTBFptr,str,this->mode);
        
