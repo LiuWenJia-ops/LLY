@@ -59,10 +59,20 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     copyAction->setStatusTip(tr("Copy"));
     connect(copyAction,&QAction::triggered,this,&MainWindow::on_actioncopy_triggered);
     //同步按钮----------------
-    syncAction =new QAction(tr("Sync Trigger"),this);
-    syncAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
-    syncAction->setStatusTip(tr("Sync Trigger"));
-    connect(copyAction,&QAction::triggered,this,&MainWindow::on_actionsync_triggered);
+    // syncAction =new QAction(tr("Sync Trigger"),this);
+    // syncAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
+    // syncAction->setStatusTip(tr("Sync Trigger"));
+    // connect(syncActio,&QAction::triggered,this,&MainWindow::on_actionsync_triggered);
+    //定义上传
+    uploadAction =new QAction(tr("upload files"),this);
+    uploadAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+    uploadAction->setStatusTip(tr("Upload"));
+    connect(findAction,&QAction::triggered,this,&MainWindow::on_actionupload_triggered);
+    //定义下载
+    downloadAction =new QAction(tr("download files"),this);
+    downloadAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
+    downloadAction->setStatusTip(tr("Download"));
+    connect(findAction,&QAction::triggered,this,&MainWindow:: on_actiondownload_triggered);
     //-----------------
     //定义findAction
     findAction =new QAction(tr("find string"),this);
@@ -84,10 +94,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
      pasteAction->setIcon(QIcon(":/paste.png"));
      findAction->setIcon(QIcon(":/find.png"));
      replaceAction->setIcon(QIcon(":/replace.png"));
+     uploadAction->setIcon(QIcon(":/upload.png"));
+     downloadAction->setIcon(QIcon(":/download.png"));
+
     //添加QAction到菜单栏
     QMenu * file=menuBar()->addMenu(tr("&File Operation"));
     QMenu * edit=menuBar()->addMenu(tr("&Text Operation"));
-     QMenu * search=menuBar()->addMenu(tr("&Search Operation"));
+    QMenu * search=menuBar()->addMenu(tr("&Search Operation"));
+    QMenu * cloud=menuBar()->addMenu(tr("&Cloud Operation"));
     QToolBar *fileToolBar = addToolBar(tr("File"));
     QStatusBar * status=statusBar();
 
@@ -121,6 +135,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     fileToolBar->addAction(replaceAction);
     status->addAction(replaceAction);
 
+    //添加上传
+    cloud->addAction(uploadAction);
+    fileToolBar->addAction(uploadAction);
+    status->addAction(uploadAction);
+    //添加下载
+    cloud->addAction(downloadAction);
+    fileToolBar->addAction(downloadAction);
+    status->addAction(downloadAction);
     //-----------------------------------------创建排版控制工具栏---------------------------
      //在工具栏上嵌入控件:字体，大小，粗体，斜体
      fontLabel = new QLabel(tr("Font:"));
@@ -640,6 +662,14 @@ void MainWindow::on_actionsync_triggered(void)
 {
     isSync= !isSync;
     SyncFile();
+}
+void  MainWindow::on_actionupload_triggered(void)
+{
+
+}
+void  MainWindow:: on_actiondownload_triggered(void)
+{
+
 }
 void MainWindow::SyncFile(void)
 {

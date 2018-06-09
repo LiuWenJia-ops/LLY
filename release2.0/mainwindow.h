@@ -75,9 +75,13 @@ private slots:
 //--------------------------------------云同步功能---------------------------------
     void SyncFile(void);
     void on_actionsync_triggered(void);
+
     void getServerFile(QString localAdd,QString serverFile);
     void readContent();
     void putServerFile(QString localAdd,QString serverFile);
+
+    void on_actionupload_triggered(void);
+    void on_actiondownload_triggered(void);
 private:
 
     QFile* file;
@@ -95,7 +99,9 @@ private:
     QAction * replaceAction;
     QLabel * position;//光标状态显示
 
-    QAction * syncAction;
+    // QAction * syncAction;
+    QAction * uploadAction;
+    QAction * downloadAction;
 //--------------------------------------查找子窗口------------------------------------------
     FindWindow * findWin;//查找窗口
     ReplaceWindow * replaceWin;//替换窗口

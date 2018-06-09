@@ -11,5 +11,7 @@
         <file>replace.png</file>
         <file>save.png</file>
         <file>underline.png</file>
+        <file>download.png</file>
+        <file>upload.png</file>
     </qresource>
 </RCC>
