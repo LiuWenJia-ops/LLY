@@ -65,11 +65,29 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
      replaceAction->setStatusTip(tr("Replace"));
      connect(replaceAction,&QAction::triggered,this,&MainWindow::on_actionreplace_triggered);
 
-
+    // //添加图标
+    //  openAction->setIcon(QIcon("://open.png"));//添加这句代码，添加图标
+    //  newAction->setIcon(QIcon("://new.png"));//添加这句代码，添加图标
+    //  saveAction->setIcon(QIcon("://save.png"));//添加这句代码，添加图标
+    //  cutAction->setIcon(QIcon("://cut.png"));//添加这句代码，添加图标
+    //  copyAction->setIcon(QIcon("://copy.png"));//添加这句代码，添加图标
+    //  pasteAction->setIcon(QIcon("://paste.png"));//添加这句代码，添加图标
+    //  findAction->setIcon(QIcon("://find.png"));//添加这句代码，添加图标
+    //  replaceAction->setIcon(QIcon("://replace.png"));//添加这句代码，添加图标
+     openAction->setIcon(QIcon(":/open.png"));//添加这句代码，添加图标
+     newAction->setIcon(QIcon(":/new.png"));//添加这句代码，添加图标
+     saveAction->setIcon(QIcon(":/save.png"));//添加这句代码，添加图标
+     cutAction->setIcon(QIcon(":/cut.png"));//添加这句代码，添加图标
+     copyAction->setIcon(QIcon(":/copy.png"));//添加这句代码，添加图标
+     pasteAction->setIcon(QIcon(":/paste.png"));//添加这句代码，添加图标
+     findAction->setIcon(QIcon(":/find.png"));//添加这句代码，添加图标
+     replaceAction->setIcon(QIcon(":/replace.png"));//添加这句代码，添加图标
     //添加QAction到菜单栏
     QMenu * file=menuBar()->addMenu(tr("&File Operation"));
     QMenu * edit=menuBar()->addMenu(tr("&Text Operation"));
+    QToolBar *fileToolBar = addToolBar(tr("File"));
     QStatusBar * status=statusBar();
+
     //添加open
     file->addAction(openAction);
     status->addAction(openAction);
@@ -78,6 +96,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     status->addAction(saveAction);
     //添加new
     file->addAction(newAction);
+    fileToolBar->addAction(newAction);
     status->addAction(newAction);
     //添加cut
     edit->addAction(cutAction);
@@ -87,12 +106,15 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent)
     status->addAction(pasteAction);
     //添加copy
     edit->addAction(copyAction);
+    fileToolBar->addAction(copyAction);
     status->addAction(copyAction);
     //添加find
     edit->addAction(findAction);
+    fileToolBar->addAction(findAction);
     status->addAction(findAction);
     //添加replace
     edit->addAction(replaceAction);
+    fileToolBar->addAction(replaceAction);
     status->addAction(replaceAction);
 
     //---------------------------------------------添加显示控件----------------------------------------

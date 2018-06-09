@@ -39,3 +39,16 @@ HEADERS += \
 
 FORMS += \
         mainwindow.ui
+
+RESOURCES += \
+    icon.qrc
+
+DISTFILES += \
+    icon/copy.png \
+    icon/cut.png \
+    icon/find.png \
+    icon/new.png \
+    icon/open.png \
+    icon/paste.png \
+    icon/replace.png \
+    icon/save.png

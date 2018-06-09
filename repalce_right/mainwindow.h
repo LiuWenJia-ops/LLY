@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QLabel>
+#include <QToolBar>
 
 #include <QKeyEvent>
 #include <QMouseEvent>
