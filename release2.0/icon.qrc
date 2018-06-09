@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>bold.png</file>
+        <file>copy.png</file>
+        <file>cut.png</file>
+        <file>find.png</file>
+        <file>italic.png</file>
+        <file>new.png</file>
+        <file>open.png</file>
+        <file>paste.png</file>
+        <file>replace.png</file>
+        <file>save.png</file>
+        <file>underline.png</file>
+    </qresource>
+</RCC>
