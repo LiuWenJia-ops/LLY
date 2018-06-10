@@ -8,12 +8,12 @@ FindWindow::FindWindow(QWidget* parent,myTextEdit * textBodyIn):
     hasResult=false;
     nowResult=1;
     this->setWindowTitle(tr("Find"));
-    this->setGeometry(100,100,400,300);
+    this->setGeometry(100,100,400,170);
     //------------------参数初始化------------
     QLabel *findLabel = new QLabel(tr("Mode:"),this);    
     QComboBox *findComboBox = new QComboBox(this);
-    findComboBox->addItem(tr("Ingnore Case"));
-    findComboBox->addItem(tr("Don't ingnore Case"));
+    findComboBox->addItem(tr("Ignore Case"));
+    findComboBox->addItem(tr("Don't Ignore Case"));
     findLineEdit = new QLineEdit(this);
     QPushButton *btn= new QPushButton(tr("Find next"), this);
 
@@ -60,7 +60,7 @@ void FindWindow::showFindText()
         if(!number){//没搜索到结果
             //TODE:提示窗口没找到
             int ret = QMessageBox::warning(this, tr("NO RESULT!"),
-                                           tr("Please hange your string."),
+                                           tr("Please change your string."),
                                            QMessageBox::Ok | QMessageBox::Ok
                                            | QMessageBox::Ok,
                                            QMessageBox::Ok);

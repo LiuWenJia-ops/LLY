@@ -17,8 +17,8 @@ ReplaceWindow::ReplaceWindow(QWidget* parent,myTextEdit * textBodyIn):
     replaceLineEdit = new QLineEdit(this);//替换的串 
     QLabel *findLabel = new QLabel(tr("Mode:"),this);    
     QComboBox *findComboBox = new QComboBox(this);
-    findComboBox->addItem(tr("Ingnore Case"));
-    findComboBox->addItem(tr("Don't ingnore Case"));
+    findComboBox->addItem(tr("Ignore Case"));
+    findComboBox->addItem(tr("Don't Ignore Case"));
     QPushButton *btn1= new QPushButton(tr("Find next"), this);
     QPushButton *btn2= new QPushButton(tr("Replace"), this);
 
